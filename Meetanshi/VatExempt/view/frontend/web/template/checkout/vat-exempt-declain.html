@@ -1,0 +1,237 @@
+<div class="vat-exempt-option-content" data-role="content">
+
+    <!-- ko ifnot: isDisableDeclarationFn() -->
+
+        <br>
+
+        You are already declared for VAT exemption.
+
+        <form class="form vat-exempt-declain" id="vat-exempt-declain" novalidate="novalidate">
+
+            <input type="hidden" value="0" name="processed" id="processed">
+
+            <input type="hidden" name='exemptname' id="exemptname" value="Auto" />
+
+            <input type="hidden" name='exemptreason' id="exemptreason" value="Other" />
+
+            <input type="checkbox" name='accept' id="accept" checked="checked" style="display: none;" />
+
+            <div class="wide">
+
+                    <div class="field success message"  style="display: none">
+
+                        <span id="applied" data-bind="test: successMessage"></span>
+
+                    </div>
+
+                </div>
+
+                <button id="action-apply" type="submit" style="display: none;">
+
+                </button>
+
+                <button id="action-cancel" disabled="disabled" type="submit" style="display: none;">
+
+                </button>
+
+        </form>
+
+        <!-- ko text: apply() -->
+
+        <!-- /ko -->
+
+    <!-- /ko -->
+
+    <!-- <div data-bind="visible: isDisableDeclarationFn()"> -->
+
+    <!-- ko if: isDisableDeclarationFn() -->
+
+    <form class="form vat-exempt-declain" id="vat-exempt-declain" novalidate="novalidate">
+
+        <input type="hidden" value="0" name="processed" id="processed">
+
+        <fieldset id="co-vatexempt"  data-bind="blockLoader: isLoading">
+
+            <div class="form-list">
+
+                <div class="wide" data-bind="html: getProductsName()">
+
+
+
+                </div>
+
+                <br />
+
+                <div class="wide" data-bind="html: getCustomerNotes()">
+
+
+
+                </div>
+
+                <div>
+
+                    <br>
+
+                    If eligible, please complete the form below:
+
+                    <br>
+
+                </div>
+
+
+
+                <br />
+
+                <div class="wide">
+
+                    <div class="field">
+
+                        <label class="label" for="exemptname">
+
+                            <span data-bind="i18n: 'Name of the VAT Exemption Claimant:'">Name of the VAT Exemption Claimant:</span>
+
+                        </label>
+
+                        <div class="control">
+
+                            <input class="input-text"
+
+                                   type="text"
+
+                                   name='exemptname'
+
+                                   id="exemptname"
+
+                                   title="Name"
+
+                                   data-validate="{'required-entry':true}"
+
+                                   data-bind="value:exemptname, attr:{placeholder: $t('Name')}"/>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <br />
+
+                <div class="wide">
+
+                    <div class="field">
+
+                        <label class="label" for="exemptreason">
+
+                            <span data-bind="i18n: 'Please select reason for claiming:'">Please select reason for claiming:</span>
+
+                        </label>
+
+                        <div class="control">
+
+                            <select id="exemptreason" name="exemptreason"
+
+                                    data-bind="options: getReasons,
+
+                                               value: selectedReasons,
+
+                                               optionsCaption: 'Choose...'"
+
+                                    data-validate="{'required-entry':true}">
+
+
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <br />
+
+                <div class="wide">
+
+                    <div class="control">
+
+                        <input
+
+                                type="checkbox"
+
+                                name="accept"
+
+                                id="accept"
+
+                                data-validate="{'required-entry':true}"/>
+
+                        <span data-bind="html: accept"></span>
+
+                    </div>
+
+                </div>
+
+                <br />
+
+                <div class="wide">
+
+                    <div class="field success message"  style="display: none">
+
+                        <span id="applied" data-bind="test: successMessage"></span>
+
+                    </div>
+
+                </div>
+
+                <br />
+                <!-- ko ifnot: (isLoggedIn()) -->
+                    <button
+                        id="top-cart-btn"
+                        type="button"
+                        class="action customer-login-link"
+                        data-action="close"
+                        data-bind="
+                            attr: {
+                                title: $t('Login/Register')
+                            },
+                            click: showPopups()
+                        "
+                        translate="'Login/Register'"
+                    />
+                <!--/ko-->
+                <div class="actions-toolbar">
+
+                    <div class="primary">
+
+
+
+                        <button class="action action-apply" id="action-apply" type="submit" data-bind="'value': $t('Apply Vat Exempt'), click: apply">
+
+                            <span><!-- ko i18n: 'Claim VAT Exemption'--><!-- /ko --></span>
+
+                        </button>
+
+                        <button class="action action-cancel" id="action-cancel" disabled="disabled" type="submit" data-bind="'value': $t('Cancel Vat Exempt'), click: cancel">
+
+                            <span><!-- ko i18n: 'Cancel VAT Exemption'--><!-- /ko --></span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </fieldset>
+
+    </form>
+
+    <!-- /ko -->
+
+    <!-- </div> -->
+    <!-- ko if: (isLoggedIn()) -->
+    <!-- <span>I must not be seen</span> -->
+    <!--/ko-->
+    
+
+</div>

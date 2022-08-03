@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="PurpleCommerce_StoreLocator::storelocator" title="Store Locator" module="PurpleCommerce_StoreLocator" sortOrder="11" resource="PurpleCommerce_StoreLocator::storelocator"/>
+        <add id="PurpleCommerce_StoreLocator::store" title="Add Stores" module="PurpleCommerce_StoreLocator" sortOrder="10" action="storelocator/store" resource="PurpleCommerce_StoreLocator::store" parent="PurpleCommerce_StoreLocator::storelocator"/>
+        
+    </menu>
+</config>

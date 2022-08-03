@@ -1,0 +1,309 @@
+<?php
+
+/**
+ * @category   Webkul
+ * @package    Webkul_EtsyMagentoConnect
+ * @author     Webkul Software Private Limited
+ * @copyright  Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license    https://store.webkul.com/license.html
+ */
+
+namespace Webkul\GoogleShoppingFeed\Helper;
+
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Locale\Resolver;
+use Webkul\GoogleShoppingFeed\Helper\Data as HelperData;
+use Webkul\GoogleShoppingFeed\Logger\Logger;
+
+class GoogleFeed extends \Magento\Framework\App\Helper\AbstractHelper
+{
+    
+    /**
+     * @var \Magento\Catalog\Api\ProductRepositoryInterface
+     */
+    private $productRepository;
+    
+    /**
+     * @var Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
+     * @var Magento\Framework\Locale\Resolver
+     */
+    private $resolver;
+
+    /**
+     * @var Webkul\GoogleShoppingFeed\Helper\Data
+     */
+    public $helperData;
+
+    /**
+     * @var Webkul\GoogleShoppingFeed\Logger\Logger
+     */
+    private $logger;
+
+    /**
+     * @param \Magento\Framework\App\Helper\Context $context,
+     * @param StoreManagerInterface $storeManager,
+     * @param Resolver $resolver,
+     * @param HelperData $helperData,
+     * @param Logger $logger
+     * @param ProductRepositoryInterface $productRepository,
+     */
+    public function __construct(
+        \Magento\Framework\App\Helper\Context $context,
+        StoreManagerInterface $storeManager,
+        Resolver $resolver,
+        HelperData $helperData,
+        Logger $logger,
+        ProductRepositoryInterface $productRepository
+    ) {
+        parent::__construct($context);
+        $this->storeManager = $storeManager;
+        $this->resolver = $resolver;
+        $this->helperData = $helperData;
+        $this->logger = $logger;
+        $this->helperData->getAccessToken();
+        $this->productRepository = $productRepository;
+
+    }
+
+    /**
+     * insertFeedToGoogleShop
+     * @param Google_Service_ShoppingContent_Product $productFeed
+     * @return Google_Service_ShoppingContent_Product
+     */
+    public function insertFeedToGoogleShop($productFeed)
+    {
+        try {
+            $accessToken = $this->helperData->getAccessToken();
+            if ($accessToken) {
+                $config = $this->helperData->getConfigDetails();
+                $client = new \Google_Client();
+                $client->setAccessToken($config['oauth2_access_token']);
+                $serviceShoppingContent =  new \Google_Service_ShoppingContent($client);
+                $product = $serviceShoppingContent->products->insert($config['merchant_id'], $productFeed);
+                return ['error' => 0, 'product' => $product];
+            } else {
+                return ['error' => 1, 'product' => null, 'message' => __('Google feed account not authenticated.')];
+            }
+        } catch (\Exception $e) {
+            $this->logger->addError('postShopData : '.$e->getMessage());
+            return ['error' => 1, 'product' => null, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * getStoreDetailForFeed
+     * @return array
+     */
+    public function getStoreDetailForFeed()
+    {
+        try {
+            $store = $this->storeManager->getStore();
+            $locale =  $this->resolver->getLocale();
+            $locale = explode('_', $locale);
+            $storeDetails = [
+                'base_media_url' => $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA),
+                'currency_code' => $store->getBaseCurrencyCode(),
+                'language' => $locale[0],
+                'country' => $locale[1]
+            ];
+            return $storeDetails;
+        } catch (\Exception $e) {
+            throw new LocalizedException(__($e->getMessage()));
+        }
+    }
+    /**
+     * getPriceForConfigProduct
+     * @param Magento\Catalog\Model\product $product
+     * @return float
+     */
+
+
+    private function getPriceForFeed($product)
+    {
+        try {
+            $price = $product->getPrice();
+	  //$price = $product->getPriceInfo()->getPrice('final_price')->getMinimalPrice()->getValue();
+            if (in_array($product->getTypeId(), ['configurable', 'bundle', 'grouped'])) {
+                $price = $product->getPriceInfo()->getPrice('final_price')->getMinimalPrice()->getValue();
+            }
+            return $price;
+        } catch (\Exception $e) {
+            throw new LocalizedException(__($e->getMessage()));
+        }
+    }
+
+
+
+
+    private function getSpecialPriceForFeed($product)
+    {
+        try {
+            $price = $product->getPrice();
+            $specialprice = 0;
+	    $specialprice = $product->getPriceInfo()->getPrice('final_price')->getMinimalPrice()->getValue();
+
+            if (in_array($product->getTypeId(), ['configurable', 'bundle', 'grouped'])) {
+             //   $specialprice = $product->getPriceInfo()->getPrice('final_price')->getMinimalPrice()->getValue();
+		return 0;
+            }
+  	   
+           if ($specialprice<$price) return $specialprice;
+	    else return 0;
+			
+
+        } catch (\Exception $e) {
+            throw new LocalizedException(__($e->getMessage()));
+        }
+    }
+
+
+    /**
+     * getProductForFeed
+     * @param Magento\Catalog\Model\product $product
+     * @param array $storeDetail
+     * @return \Google_Service_ShoppingContent_Product
+     */
+    public function getProductForFeed($product, $storeDetail)
+    {
+        if (in_array($product->getTypeId(), ['configurable', 'bundle', 'grouped'])) {
+             throw new LocalizedException(__("Configurable items not allowed in Google Feed. Select associated simple products only."));
+            } else 
+        {
+            $child=$product;
+            $productID = $product->getId();
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $logger = $objectManager->create(\Psr\Log\LoggerInterface::class);
+            $productparentIDs = $objectManager->create('Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable')->getParentIdsByChild($productID);
+            if(isset($productparentIDs[0])){
+                $product = $this->productRepository->getById($productparentIDs[0]);
+            }
+
+            $logger->info("feedproductids---->Parent:".$product->getSku()."|Child:".$child->getSku());
+
+
+            try {
+                $googleProductCategory = $this->helperData->getMappedCategory($product->getCategoryIds());
+                $cost = $this->getPriceForFeed($child);
+                $store = $this->storeManager->getStore();
+                $productData = $this->helperData->getProductDataAsFieldMap($product);
+                $childproductData = $this->helperData->getProductDataAsFieldMap($child);
+                $feedProduct = new \Google_Service_ShoppingContent_Product();
+                $feedProduct->setChannel("online");
+                $feedProduct->setContentLanguage($storeDetail['language']);
+                $feedProduct->setOfferId($childproductData['offerId']);
+                $feedProduct->setTargetCountry($storeDetail['country']);
+                $feedProduct->setTitle($productData['title']);
+                $feedProduct->setDescription($productData['description']);
+                $availability = $child->getQuantityAndStockStatus() ? "in stock" : "out of stock";
+                $feedProduct->setAvailability($availability);
+                $link = $store->getBaseUrl().$product->getUrlKey().'.html';
+                $feedProduct->setLink($link);
+                if ($productData['brand']) {
+                    $feedProduct->setBrand($productData['brand']);
+                }
+                if ($productData['color']) {
+                    $feedProduct->setColor($productData['color']);
+                }
+
+                $feedProduct->setGender($productData['gender']);
+                $customProduct = $product->getGfCustomProduct();
+                if (isset($productData['gtin']) && !$customProduct) {
+                    $feedProduct->setGtin($productData['gtin']);
+                    /** $feedProduct->setMpn($productData['mpn']); */
+                } else {
+                    $feedProduct->setIdentifierExists(false);
+                }
+                $feedProduct->setAgeGroup($productData['ageGroup']);
+                if (isset($childproductData['sizes'])) {
+                    $a=[];
+                    array_push($a,$childproductData['sizes']);
+                    $feedProduct->setSizes($a);
+                }
+                if (isset($productData['sizeType'])) {
+                    $feedProduct->setSizes($productData['sizeType']);
+                }
+                if (isset($productData['sizeSystem'])) {
+                    $feedProduct->setSizeSystem($productData['sizeSystem']);
+                }
+
+                if(isset($productparentIDs[0])){ 
+                    $feedProduct->setItemGroupId($product->getSku());
+                }
+
+                $imageLink =  $productData['imageLink'] == 'no_selection' ?
+                                    '/placeholder/image.jpg' : $productData['imageLink'];
+                $feedProduct->setImageLink($storeDetail['base_media_url'] . 'catalog/product' . $imageLink);
+                $feedProduct->setCondition($productData['condition']);
+
+                $feedProduct->setTitle($product->getName());
+
+                if (isset($productData['title'])){
+                        $feedProduct->setTitle($productData['title']);
+                }
+
+                $taxShip = $productData['taxShip'] == 'Yes'  ? true : false;
+                $shipTaxGlobal = $this->scopeConfig->getValue('googleshoppingfeed/default_config/tax_on_ship');
+                $shipApplied = $taxShip || ($productData['taxShip'] != 'No' && $shipTaxGlobal) ? true : false;
+                $tax = new \Google_Service_ShoppingContent_ProductTax();
+                $tax->setCountry($storeDetail['country']);
+                $productData['taxRate'] = $productData['taxRate'] ? $productData['taxRate'] :
+                    $this->scopeConfig->getValue('googleshoppingfeed/default_config/tax_rate');
+                $tax->setRate($productData['taxRate']);
+                $tax->setTaxShip($shipApplied);
+                //$feedProduct->setTaxes([$tax]);
+                if ($googleProductCategory) {
+                    $feedProduct->setGoogleProductCategory($googleProductCategory);
+                    /** $feedProduct->setProductTypes($googleProductCategory); */
+                }
+                if (isset($productData['shippingWeight']) && $productData['shippingWeight']) {
+                    $shippingWeight = new \Google_Service_ShoppingContent_ProductShippingWeight();
+                    $shippingWeight->setValue($productData['shippingWeight']);
+                    $shippingWeight->setUnit($this->scopeConfig->getValue('googleshoppingfeed/default_config/weight_unit'));
+                    $feedProduct->setShippingWeight($shippingWeight);
+                }
+
+                $price = new \Google_Service_ShoppingContent_Price();
+                $price->setCurrency($storeDetail['currency_code']);
+                $price->setValue($cost);
+                $feedProduct->setPrice($price);
+
+
+                $special=$this->getSpecialPriceForFeed($child);
+                if ($special>0) {
+                    $pricespecial = new \Google_Service_ShoppingContent_Price();
+                    $pricespecial->setValue($special);
+                    $pricespecial->setCurrency($storeDetail['currency_code']);
+                    $feedProduct->setSalePrice($pricespecial);
+                }
+                return $feedProduct;
+            } catch (\Exception $e) {
+                throw new LocalizedException(__($e->getMessage()));
+            }
+        }
+    }
+
+    /**
+     * deleteFeedFromGoogleShop
+     * @param string $feedId
+     * @param array $shopConfig
+     */
+    public function deleteFeedFromGoogleShop($feedId, $shopConfig = null)
+    {
+        try {
+            $config = $shopConfig ? $shopConfig : $this->helperData->getConfigDetails();
+            $client = new \Google_Client();
+            $client->setAccessToken($config['oauth2_access_token']);
+            $serviceShoppingContent =  new \Google_Service_ShoppingContent($client);
+            $product = $serviceShoppingContent->products->delete($config['merchant_id'], $feedId);
+            return $product;
+        } catch (\Exception $e) {
+            throw new LocalizedException(__($e->getMessage()));
+        }
+    }
+}

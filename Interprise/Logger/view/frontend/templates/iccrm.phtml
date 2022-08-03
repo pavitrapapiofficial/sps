@@ -1,0 +1,35 @@
+<?php  $_gridrecords = $block->getCollectioncrm(); // get collection which we set in block class ?>
+<a href="<?= /* @noEscape */$block->getUrl('icustomer/ccrm/addnew'); ?>" class="action save primary">Add New Case</a>
+<?php if ($_gridrecords && count($_gridrecords)) : ?>
+    <div class="table-wrapper orders-history">
+        <table class="data table table-order-items history" id="my-orders-table">
+            <caption class="table-caption"><?= /* @noEscape */__('Grid Record') ?></caption>
+            <thead>
+                <tr>
+                    <th scope="col" class="col id"><?= /* @noEscape */ __('ID #') ?></th>
+                    <th scope="col" class="col title"><?= /* @noEscape */__('SO Number') ?></th>
+                    <th scope="col" class="col date"><?= /* @noEscape */__('Last Updated') ?></th>
+                    <th scope="col" class="col ">Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php  // read collection as magento1.x and display in list
+                foreach ($_gridrecords as $_gridrecord) :
+                    $order_id = $_gridrecord['entity_id'];
+                    ?>
+                          
+                    <tr>
+                        <td class="col id"><?= /* @noEscape */ $order_id ?></td>
+                        <td class="col shipping"><?= /* @noEscape */ $_gridrecord['case_number'] ?></td>
+                        <td class="col date"><?= /* @noEscape */ $_gridrecord['subject'] ?></td>
+                        <td class="col date"><?= /* @noEscape */$_gridrecord['updated_at'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+<?php else : ?>
+    <div class="message info empty"><span><?= /* @noEscape */__('grid records not available.'); ?></span></div>
+<?php endif ?>
+

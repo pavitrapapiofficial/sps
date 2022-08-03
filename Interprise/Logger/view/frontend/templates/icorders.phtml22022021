@@ -1,0 +1,85 @@
+<?php  $_gridrecords = $block->getCollectionorder(); // get collection which we set in block class
+$query_string = '';
+$p = $block->getRequest()->getParam('p');
+$limit = $block->getRequest()->getParam('limit');
+if ($p) {
+    $query_string = '&p='.$p;
+}
+if ($limit) {
+    $query_string .= '&limit='.$limit;
+}
+$filter = $block->getRequest()->getParam('filter');
+?>
+<!----------------- Show Filter ------------------------------>
+<div class="toolbar">
+    <div class="sorter">
+        <div class="sort-by">
+            <label>Filter By</label>
+            <select onchange="setLocation(this.value)" title="Filter By">
+                <option value="<?= /* @noEscape */$block->getUrl('icustomer/corder/index/'); ?>?filter=complete<?= /* @noEscape */$query_string;?>" <?php if (isset($filter) && $filter=='complete') {echo 'selected';}?>>Order History</option>
+                <option value="<?= /* @noEscape */$block->getUrl('icustomer/corder/index/'); ?>?filter=open<?=/** @noEscape */$query_string;?>"
+                    <?php if ($filter=='open' || !$block->getRequest()->getParams()) {echo 'selected';}?>>Outstanding Orders</option>
+            </select>
+        </div>
+    </div>
+    <?= /* @noEscape */ $block->getPagerHtml(); ?>
+</div>
+<!----------------- End Filter ------------------------------>
+
+    <div class="table-wrapper orders-history">
+        
+        <table class="data table table-order-items history" id="my-orders-table">
+            <caption class="table-caption"><?= /* @noEscape */__('Grid Record') ?></caption>
+            <thead>
+                <tr>
+                    <!--<th scope="col" class="col id"><?php //echo __('ID #') ?></th>-->
+                    <th scope="col" class="col title"><?= /* @noEscape */__('SO Number') ?></th>
+                    <th scope="col" class="col title"><?= /* @noEscape */ __('PO') ?></th>
+                    <th scope="col" class="col date"><?= /* @noEscape */__('Document Date') ?></th>
+                    <th scope="col" class="col shipto"><?= /* @noEscape */ __('Ship To') ?></th>
+                    <th scope="col" class="col paymenttype"><?= /* @noEscape */__('Payment Type') ?></th>
+                    <th scope="col" class="col total"><?= /* @noEscape */ __('Total') ?></th>
+                    <th scope="col" class="col status"><?= /* @noEscape */ __('Status') ?></th>
+                    <th scope="col" class="col ">Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($_gridrecords && count($_gridrecords)) : ?>
+                    <?php  // read collection as magento1.x and display in list
+                    foreach ($_gridrecords as $_gridrecord) :
+                        $order_id = $_gridrecord['document_code'];
+                    
+                        $documentdate = $_gridrecord['salesorderdate'];
+                        $documentdate = substr($documentdate, 8, 2)."-".substr($documentdate, 5, 2)."-".substr($documentdate, 0, 4);
+                        ?>
+                          
+                    <tr>
+                        <td class="col shipping"><?= /* @noEscape */ $_gridrecord['document_code'] ?></td>
+                        <td class="col po"><?= /* @noEscape */ $_gridrecord['pocode'] ?></td>
+                        <td class="col date"><?= /* @noEscape */ $documentdate ?></td>
+                        <td class="col shipto"><?= /* @noEscape */ $_gridrecord['shiptoname'] ?></td>
+                        <td class="col paymenttype"><?= /* @noEscape */ $_gridrecord['paymenttermcode'] ?></td>
+                        <td class="col total"><?= /* @noEscape */ $block->formatPrice($_gridrecord['total']); ?></td>
+                        <td class="col orderstatus"><?= /* @noEscape */ $_gridrecord['status'] ?></td>
+                        <td class="col date"><a href="<?= /* @noEscape */ $block->getUrl("icustomer/corder/detail/id/$order_id"); ?>">Detail</a></td>
+                    </tr>
+                <?php endforeach; ?>
+                    <?php else : ?>
+                    <tr><td colspan="8"><div class="message info empty"><span><?= /* @noEscape */ __('Records Not Found.'); ?></span></div></td></tr>
+                    <?php endif ?>
+            </tbody>
+        </table>
+    </div>
+
+<style>
+    .total{
+        text-align: right;
+    }
+</style>
+    
+<script>
+    function setLocation(url){
+        window.location.href = encodeURI(url);
+    }
+
+</script>

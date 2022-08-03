@@ -1,0 +1,55 @@
+<?php
+    $helper = $block->getLayout()->createBlock(\Webkul\RewardSystem\Block\RewardData::class)->getHelperClass();
+    $rewardPriorityStatus = $helper->getrewardPriority();
+    $enableRewardSystem = $helper->enableRewardSystem();
+    $product = $block->getProduct();
+    $productPrice = $product->getFinalPrice();
+    $rewardValue = $helper->getRewardValue();
+    $pointsRequired = $productPrice/$rewardValue;
+    $productId = $product->getId();
+    list($productRewardPoints, $status, $message) = $helper->getProductRewardToShow($productId);
+    $url  = $block->escapeUrl($block->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]));
+    $customerId = $helper->getCustomerId();
+if ($product->getTypeId() == 'bundle') {
+    $minimalPrice = $product->getPriceInfo()->getPrice('final_price')->getMinimalPrice()->getValue();
+    $maximalprice = $product->getPriceInfo()->getPrice('final_price')->getMaximalPrice()->getValue();
+    $pointsRequired = $minimalPrice/$rewardValue."-".$maximalprice/$rewardValue;
+}
+if ($product->getTypeId() == 'grouped') {
+    $usedProds = $product->getTypeInstance(true)->getAssociatedProducts($product);
+    $finalPrice = 0;
+    foreach ($usedProds as $child) {
+        if ($child->getId() != $product->getId()) {
+              $finalPrice += $child->getFinalPrice();
+        }
+    }
+        $pointsRequired = $finalPrice/$rewardValue;
+}
+$loginUrl = $block->getUrl('customer/account/login', ['referer' => base64_encode($url)]);
+?>
+    <?php $pointsRequired = false; if ($pointsRequired):?>
+      <span class="wk_reward_required">
+        <?= /* @noEscape */ __('%1 Feather Points will be used to purchase this product', $pointsRequired)?>
+      </span>
+    <?php endif;?>
+    <?php
+    if ($rewardPriorityStatus == 0 && $enableRewardSystem== 1 && $productRewardPoints) {    ?>
+            <div class="wk_rewards_on_products">
+                <h3 class="wk_rs_product_style wk_rs_advertise_product_page_style">
+                    <span class="wk_rs_product_page_greet"></span>
+                    <?= /* @noEscape */ __('Buy this product and ')?>
+                    <span class="wk_rs_cart_green">
+                      <?= /* @noEscape */ __('Earn %1 Feather Points', $productRewardPoints); ?>
+                        <?php if ($status) {
+                           /* @noEscape */ echo __(' between')?>
+                        <?php } ?>
+                        <span class="wk_rs_cart_green"><?=  $block->escapeHtml($message); ?>
+                        <?php if (!$customerId) { ?>
+                            <a href="<?= $block->escapeUrl($loginUrl) ; ?>"><?= /* @noEscape */ __(" click here"); ?>
+                            </a>
+                            <?= /* @noEscape */ __(" to login");} ?>
+                        </span>
+                    </span>
+                </h3>
+            </div>
+<?php }?>

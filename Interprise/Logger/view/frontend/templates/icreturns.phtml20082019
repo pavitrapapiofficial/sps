@@ -1,0 +1,79 @@
+<?php  $_gridrecords = $this->getCollectionreturns(); // get collection which we set in block class
+$query_string = '';
+$p = $this->getRequest()->getParam('p');
+$limit = $this->getRequest()->getParam('limit');
+if ($p) {
+    $query_string = '&p='.$p;
+}
+if ($limit) {
+    $query_string .= '&limit='.$limit;
+}
+$filter = $this->getRequest()->getParam('filter');
+?>
+<!----------------- Show Filter ------------------------------>
+<div class="toolbar">
+    <div class="sorter">
+        <div class="sort-by">
+            <label>Filter By</label>
+            <select onchange="setLocation(this.value)" title="Filter By">
+                <option value="<?= $this->getUrl('icustomer/creturns/index/'); ?>?filter=complete<?= $query_string;?>" <?php if (isset($filter) && $filter=='complete') {echo 'selected';}?>>Order History</option>
+                <option value="<?= $this->getUrl('icustomer/creturns/index/'); ?>?filter=open<?= $query_string;?>" <?php if ($filter=='open' || !$this->getRequest()->getParams()) {echo 'selected';}?>>Outstanding Orders</option>
+            </select>
+        </div>
+    </div>
+    <?= $this->getPagerHtml(); ?>
+</div>
+<!----------------- End Filter ------------------------------>
+
+    <div class="table-wrapper orders-history">
+        <table class="data table table-order-items history" id="my-orders-table">
+            <caption class="table-caption"><?= __('Grid Record') ?></caption>
+            <thead>
+                <tr>
+                    <!--<th scope="col" class="col id"><?php //echo __('ID #') ?></th>-->
+                    <th scope="col" class="col title"><?= __('SO Number') ?></th>
+                    <th scope="col" class="col title"><?= __('PO') ?></th>
+                    <th scope="col" class="col date"><?= __('Last Updated') ?></th>
+                    <th scope="col" class="col shipto"><?= __('Ship To') ?></th>
+                    <th scope="col" class="col paymenttype"><?= __('Payment Type') ?></th>
+                    <th scope="col" class="col total"><?= __('Total') ?></th>
+                    <th scope="col" class="col ">Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($_gridrecords && count($_gridrecords)) : ?>
+                    <?php  // read collection as magento1.x and display in list
+                    foreach ($_gridrecords as $_gridrecord) :
+                        $order_id = $_gridrecord['id'];
+                        ?>
+                          
+                    <tr>
+                        <!--<td class="col id"><?php //echo $_gridrecord['id'] ?></td>-->
+                        <td class="col shipping"><?= $_gridrecord['document_code'] ?></td>
+                        <td class="col po"><?= $_gridrecord['pocode'] ?></td>
+                        <td class="col date"><?= date('d/m/Y', strtotime($_gridrecord['updated_at'])) ?></td>
+                        <td class="col shipto"><?= $_gridrecord['shiptoname'] ?></td>
+                        <td class="col paymenttype"><?= $_gridrecord['paymenttermcode'] ?></td>
+                        <td class="col total"><?= $this->formatPrice($_gridrecord['total']); ?></td>
+                        <td class="col orderstatus"><?= $_gridrecord['status'] ?></td>
+                        <td class="col date"><a href="<?= $this->getUrl("icustomer/corder/detail/id/$order_id"); ?>">Detail</a></td>
+                    </tr>
+                <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr><td colspan="8"><div class="message info empty"><span><?= __('Records Not Found.'); ?></span></div></td></tr>
+                    <?php endif ?>
+            </tbody>
+        </table>
+    </div>
+
+<style>
+    .total{
+        text-align: right;
+    }
+</style>
+<script>
+    function setLocation(url){
+        window.location.href = encodeURI(url);
+    }
+
+</script>

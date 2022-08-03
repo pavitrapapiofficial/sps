@@ -1,0 +1,49 @@
+<?php
+
+namespace Meetanshi\VatExempt\Observer;
+
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Event\Observer;
+use Magento\Customer\Model\Session;
+use Magento\Framework\Message\ManagerInterface;
+use Meetanshi\VatExempt\Helper\Data;
+use Magento\Framework\App\ResponseFactory;
+use Magento\Framework\UrlInterface;
+
+class CheckOutCartObserver implements ObserverInterface
+{
+    protected $customerSession;
+    protected $helper;
+    protected $messageManager;
+    private $responseFactory;
+    private $url;
+
+    public function __construct(
+        Session $session,
+        ResponseFactory $responseFactory,
+        ManagerInterface $messageManager,
+        UrlInterface $url,
+        Data $helper
+    )
+    {
+        $this->customerSession = $session;
+        $this->responseFactory = $responseFactory;
+        $this->messageManager = $messageManager;
+        $this->url = $url;
+        $this->helper = $helper;
+    }
+
+    public function execute(Observer $observer)
+    {
+        if ($this->helper->getRequireLogin()) {
+            if (!$this->customerSession->isLoggedIn()) {
+                $event = $observer->getEvent();
+                $RedirectUrl = $this->url->getUrl('customer/account/login');
+                $this->messageManager->addNoticeMessage(__('Please Login to Place Your Order.'));
+                $this->responseFactory->create()->setRedirect($RedirectUrl)->sendResponse();
+                return $this;
+            }
+        }
+        return $this;
+    }
+}

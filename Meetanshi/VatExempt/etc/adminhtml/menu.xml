@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Provider: Meetanshi.
+ * Package: Meetanshi VatExempt
+ * Support: support@meetanshi.com (https://meetanshi.com/)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Meetanshi_VatExempt::manager" title="VAT Exemption" module="Meetanshi_VatExempt" sortOrder="10"
+             resource="Meetanshi_VatExempt::manager"/>
+        <add id="Meetanshi_VatExempt::add_row" title="Manage Disabilities Reasons" module="Meetanshi_VatExempt" sortOrder="20"
+             parent="Meetanshi_VatExempt::manager" action="reason/grid" resource="Meetanshi_VatExempt::add_row"/>
+        <add id="Meetanshi_VatExempt::vatexempt_configuration" title="Configuration" module="Meetanshi_VatExempt" sortOrder="30"
+             parent="Meetanshi_VatExempt::manager" action="adminhtml/system_config/edit/section/vatexempt" resource="Meetanshi_VatExempt::vatexempt_configuration"/>
+
+    </menu>
+</config>

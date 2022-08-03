@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Provider: Meetanshi.
+ * Package: Meetanshi VatExempt
+ * Support: support@meetanshi.com (https://meetanshi.com/)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <vatexempt>
+            <general>
+                <enable>0</enable>
+                <declared_note>I, {customer_name} declare that I have a disabling condition by reason of {reasone_of} and receiving product which are being supplied to me for domestic or my personal use and I claim relief from value added tax.</declared_note>
+                <customer_notes>
+                    <![CDATA[Zero vat is available on products you have brought. :<br>This is for disable people and charities that qualify and purchase certain Product VAT free to claim for zero VAT.]]>
+                </customer_notes>
+                <accept>
+                    <![CDATA[I agree VAT exemption terms and conditions.]]>
+                </accept>
+            </general>
+        </vatexempt>
+    </default>
+</config>

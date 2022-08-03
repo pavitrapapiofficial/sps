@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Provider: Meetanshi.
+ * Package: Meetanshi VatExempt
+ * Support: support@meetanshi.com (https://meetanshi.com/)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <uiComponent name="reason_record_grid_list"/>
+        </referenceContainer>
+    </body>
+</page>

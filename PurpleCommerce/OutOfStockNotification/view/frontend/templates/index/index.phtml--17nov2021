@@ -1,0 +1,382 @@
+
+<style>
+    .footer-middle, .footer-right{
+        display:none !important;
+    }
+    .custm-swatch{
+        min-width: 60px;border: 1px solid #fff;font-size: 10px;font-weight: 500;padding: 4px 4px;background: #f0f0f0;color: #686868;
+        margin-right: 15px;
+    }
+    .custom-action-addtocart{
+        margin-right: 0;
+        width: 100%;
+        display: block;
+        border-radius: 0;
+        text-transform: uppercase;
+        background: #000;
+        border: 1px solid #000;
+        font-size: 12px;
+        font-weight: 300;
+        padding: 10px 0;
+        text-align: center;
+        color: #fff;
+    }
+    #product-addtocart-button{
+        display:none !important;
+    }
+    .substract{
+        padding: 10px;
+        font-size: 25px;
+    }
+    .addition{
+        padding: 10px;
+        font-size: 25px;
+    }
+    .changecss{
+        display:block !important;
+    }
+    .must-visible{
+        display:block !important;
+    }
+</style>
+<?php 
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $blockObj= $block->getLayout()->createBlock('Magento\ProductAlert\Block\Product\View');
+    $product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');
+    $productTypeInstance = $product->getTypeInstance();
+    $parentid = $product->getId();
+    // $blockObj= $block->getLayout()->createBlock('PurpleCommerce\Swatches\Block\GetCurrency');
+    // echo $blockObj->checkblock();
+    $appendVal = '<ul></ul>';
+    $appendheadVal = '';
+    $index = 0;
+    $show = 0;
+    $customAddtocart ='';
+    if ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+        $usedProducts = $productTypeInstance->getUsedProducts($product);
+?>
+<?php 
+$customAddtocart = '<p class="notify-size">Select Sizes:</p><p class="notify-cust">Please select size.</p><ul class="custom-addto-cart" style="padding-left: 0;">';
+$appendVal = '<p id="stock-notify" style="display:none"><b>Out of stock:</b></p><ul style="padding-left: 0;">';
+?>
+        
+            <?php foreach ($usedProducts  as $child) { 
+                $index++;
+                $customAddtocart .= '<li class="myli" id="div'.$child->getId().'" index="'.$index.'" style="list-style:none;display:none">';
+                $appendVal .= '<li class="myli" id="div'.$child->getId().'" index="'.$index.'" style="list-style:none">';
+                // die;
+                    $pid = $child->getId();
+                    $sku = $child->getSku();
+                    $productCollection = $objectManager->create('Magento\Catalog\Model\Product')->load($pid);
+                    $productPriceById = $productCollection->getPrice();
+                    $RegularPrice = $productCollection->getPriceInfo()->getPrice('regular_price')->getValue();
+                    $specialPrice = $productCollection->getPriceInfo()->getPrice('special_price')->getValue();
+                    $productStockObj = $objectManager->get('Magento\CatalogInventory\Api\StockRegistryInterface')->getStockItem($child->getId());
+                    $StockState = $objectManager->get('\Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku');
+                    $jsonqty = $StockState->execute($sku);
+                    $qty=$jsonqty[0]['qty'];
+                    $oid='';
+                    $ProdBackorder = $objectManager->get('Magento\Catalog\Api\ProductRepositoryInterface')->getById($pid);
+                    $backorderStatus = $ProdBackorder->getExtensionAttributes()->getStockItem()->getBackorders();
+                    $isbackorder=false;
+                    if($backorderStatus==0){
+                        $isbackorder = false;
+                    }elseif($backorderStatus==1){
+                        $isbackorder = true;
+                    }elseif($backorderStatus==2){
+                        $isbackorder = true;
+                    }
+                    $sizegetlable = $productCollection->getData('Sizes');
+                    $sizeattri = $productCollection->getResource()->getAttribute('Sizes');
+                    $sizeoptionTexts='';
+                    if ($sizeattri) {
+                        $sizeoptionTexts = $sizeattri->getSource()->getOptionText($sizegetlable);
+                    }
+                    $colorgetlable = $productCollection->getData('color');
+                    $colorattri = $productCollection->getResource()->getAttribute('color');
+                    $coloroptionTexts='';
+                    if ($colorattri) {
+                        $coloroptionTexts = $colorattri->getSource()->getOptionText($colorgetlable);
+                    }
+                    
+                    $curr = $blockObj->getCurrentCurrencySymbol();
+                    $curr = 'inr';
+                    $cl;
+                    if(empty($specialPrice)){
+                        $sp='';
+                        $cl = '';
+                    }else{
+                        $sp=$curr.$specialPrice;
+                        $cl = ' strike';
+                    }
+                    $stockq = round($productStockObj->getData('qty'));
+                    if(round($productStockObj->getData('qty'))==0/*round($qty)*/){
+                        $show = 1;
+                        
+                        $val = $objectManager->create('PurpleCommerce\OutOfStockNotification\Helper\Data')->getSaveUrlCustom('stock',$pid);
+                        if($isbackorder){
+                            $customAddtocart .= '<span class="custom'.$cl.'" parent-id="'.$parentid.'" prod-id="'.$pid.'"><span class="custm-swatch">'.$sizeoptionTexts.'</span> <span class="custom-addto-cart-color bkorder" style="color:red">BACK ORDER</span></span><span class="substract" pid="'.$pid.'">-</span> <input type="text" isbk="'.$isbackorder.'" orgstq="'.$stockq.'" name="qties[]" class="prod-qty" id="'.$pid.'" pid="'.$pid.'" optionId="'.$sizegetlable.'" style="max-width: 40px !important;" min="0" value="0"/><span class="addition" pid="'.$pid.'">+</span> <sapn mid="'.$pid.'" class="msg-'.$pid.' custom-msg"></span></span>';
+                        }else{
+                            $customAddtocart .= '<span class="custom'.$cl.'" parent-id="'.$parentid.'" prod-id="'.$pid.'"><span class="custm-swatch">'.$sizeoptionTexts.'</span> <span class="custom-addto-cart-color outofstk" style="color:red">Out of Stock <br> <a href="'.$val.'" title="" class="action alert">Notify Me!</a></span></span><span class="substract" pid="'.$pid.'">-</span> <input type="text" isbk="'.$isbackorder.'" orgstq="'.$stockq.'" name="qties[]" class="prod-qty" id="'.$pid.'" pid="'.$pid.'" optionId="'.$sizegetlable.'" style="max-width: 40px !important;" min="0" value="0" disabled/><span class="addition" pid="'.$pid.'">+</span><sapn mid="'.$pid.'" class="msg-'.$pid.' custom-msg"></span> </span>';
+                        }
+                        $appendVal .= '<span class="custom'.$cl.'" parent-id="'.$parentid.'"><span class="custm-swatch">'.$sizeoptionTexts.'</span> ['.$coloroptionTexts.'] </span> - <a href="'.$val.'" title="" class="action alert">Email me when back in stock</a>';
+                        
+                    }else{
+                        
+                        $customAddtocart .= '<span class="custom'.$cl.'" parent-id="'.$parentid.'" prod-id="'.$pid.'"><span class="custm-swatch">'.$sizeoptionTexts.'</span> <span class="custom-addto-cart-color instk" style="color:green">In stock</span></span></span><span class="substract" pid="'.$pid.'">-</span> <input type="text" isbk="'.$isbackorder.'" orgstq="'.$stockq.'" name="qties[]" class="prod-qty" id="'.$pid.'" pid="'.$pid.'" optionId="'.$sizegetlable.'" style="max-width: 40px !important;" min="0" value="0"/><span class="addition" pid="'.$pid.'">+</span> <sapn mid="'.$pid.'" class="msg-'.$pid.' custom-msg"></span></span>';
+                    }
+                    // else
+                    //     $appendVal .= '<span class="custom'.$cl.'">'.$curr.$RegularPrice.'</span><span class="custom">'.$sp.'</span><br>';
+                    ?>
+                <?php $appendVal .='</li>';$customAddtocart.='</li>'; ?>
+            <?php } ?>
+            
+<?php 
+$appendVal .='</ul>';
+$appendVal='';
+$customAddtocart .='</ul><a href="javascript:void(0)" class="custom-action-addtocart">Add To Bag</a>';
+    } else {
+        $productStockObj = $objectManager->get('Magento\CatalogInventory\Api\StockRegistryInterface')->getStockItem($product->getId());
+        
+    }
+    
+?>
+<script type="text/javascript">
+requirejs(['jquery','underscore','Magento_Customer/js/customer-data','Magento_Ui/js/modal/alert'], function(jQuery,_,customerData,confirm){
+    var addtocartJson = [];
+    var isATCdisable = 0;
+    jQuery(window).load(function(){
+        var large = '<?php echo $appendVal;?>';
+        var customaddtocart = '<?php echo $customAddtocart;?>';
+        var show = '<?php echo $show;?>';
+        console.log('show',typeof(show));
+        
+        // console.log("loaed",large);
+        jQuery( ".product-options-wrapper div" ).click(function() {
+            // selpro();
+        });
+        jQuery('#product-options-wrapper').append(customaddtocart);
+        jQuery('#product-options-wrapper').append(large);
+        // jQuery('head').append(headcontent);
+        
+        if(show=='1'){
+            // console.log('inside if');
+            // jQuery('.stock-notify').show();
+            var nav = document.getElementById("stock-notify");
+            // nav.style.display = "block";
+        }else{
+            // console.log('inside else');
+        }
+        // disableOutofStock();
+
+    });
+    jQuery(document).ready(function(){
+        jQuery(document).on('keyup','.prod-qty',function(event){
+            // alert('got you');
+            var msg='';
+
+            var prod = jQuery(this).attr('pid');
+            var qties = jQuery(this).val();
+            var originalqty = jQuery(this).attr('orgstq');
+            var isbk = parseInt(jQuery(this).attr('isbk'));
+            if(qties=="" || qties== undefined){qties=0;}
+
+            if(qties > originalqty && isbk==1){
+                var bkqty = parseInt(qties) - parseInt(originalqty);
+                msg = 'only '+originalqty+' available and '+bkqty+ ' will be backorder.';
+                jQuery(".msg-"+prod).html(msg);
+            }else if(qties > originalqty && isbk==0){
+                msg = 'only '+originalqty+' avilable';
+                jQuery('.custom-action-addtocart').attr('disabled','disabled');
+                
+                isATCdisable = 1;
+            }else if(qties < originalqty && isATCdisable==1){
+                jQuery('.custom-action-addtocart').removeAttr('disabled');
+            }
+            
+
+            if(qties>=0){
+                if(addtocartJson.length>0){
+                    if(contains(prod,addtocartJson,qties)){
+                        
+                    }else{
+                        addtocartJson.push({
+                            "id": prod,
+                            "qty": qties
+                        })
+                    }
+                }else{
+                    addtocartJson.push({
+                        "id": prod,
+                        "qty": qties
+                    })
+                }
+                
+                
+            }
+            
+            console.log('quantities 1',addtocartJson);
+        })
+    })
+    jQuery(document).on('click','.substract',function(){
+        var msg='';   
+        var qties = 0;
+        var pid = jQuery(this).attr('pid');
+        var val=parseInt(jQuery('#'+pid).val());
+        // alert(pid);
+        
+        if(val!=0){
+            var newval = val-1;
+        }else{
+            newval = val;
+        }
+        jQuery('#'+pid).val(newval);
+
+        // Display msg
+        qties = newval;
+        var originalqty = jQuery('#'+pid).attr('orgstq');
+        var isbk = parseInt(jQuery('#'+pid).attr('isbk'));
+        if(qties > originalqty && isbk==1){
+            var bkqty = parseInt(qties) - parseInt(originalqty);
+            msg = 'only '+originalqty+' available and '+bkqty+ ' will be backorder.';
+            jQuery(".msg-"+pid).html(msg);
+        }else if(qties > originalqty && isbk==0){
+            msg = 'only '+originalqty+' avilable';
+            jQuery('.custom-action-addtocart').attr('disabled','disabled');
+            jQuery(".msg-"+pid).html(msg);
+            isATCdisable = 1;
+        }else if(qties < originalqty && isATCdisable==1){
+            jQuery('.custom-action-addtocart').removeAttr('disabled');
+        }else if(qties < originalqty){
+            jQuery(".msg-"+pid).html('');
+        }
+        //---
+        if(addtocartJson.length>0){
+            if(contains(pid,addtocartJson,qties)){
+                
+            }else{
+                addtocartJson.push({
+                    "id": pid,
+                    "qty": qties
+                })
+            }
+        }else{
+            if(newval>0){
+                addtocartJson.push({
+                    "id": pid,
+                    "qty": newval
+                })
+            }
+            
+        }
+        console.log('quantities 2',addtocartJson);
+    });
+    jQuery(document).on('click','.addition',function(){
+        // alert('captured 2');
+        var msg='';
+        var qties = 0;
+        var pid = jQuery(this).attr('pid');
+        var val=parseInt(jQuery('#'+pid).val());
+        var newval = val+1;
+        jQuery('#'+pid).val(newval);
+
+        // Display msg
+        qties = newval;
+        var originalqty = jQuery('#'+pid).attr('orgstq');
+        var isbk = parseInt(jQuery('#'+pid).attr('isbk'));
+        
+        if(qties > originalqty && isbk==1){
+            var bkqty = parseInt(qties) - parseInt(originalqty);
+            msg = 'only '+originalqty+' available and '+bkqty+ ' will be backorder.';
+            jQuery(".msg-"+pid).html(msg);
+        }else if(qties > originalqty && isbk==0){
+            msg = 'only '+originalqty+' avilable';
+            jQuery('.custom-action-addtocart').attr('disabled','disabled');
+            jQuery(".msg-"+pid).html(msg);
+            isATCdisable = 1;
+        }else if(qties < originalqty && isATCdisable==1){
+            jQuery('.custom-action-addtocart').removeAttr('disabled');
+        }else if(qties < originalqty){
+            jQuery(".msg-"+pid).html('');
+        }
+        //--
+
+        if(addtocartJson.length>0){
+            if(contains(pid,addtocartJson,qties)){
+                
+            }else{
+                addtocartJson.push({
+                    "id": pid,
+                    "qty": qties
+                })
+            }
+        }else{
+            if(newval>0){
+                addtocartJson.push({
+                    "id": pid,
+                    "qty": newval
+                })
+            }
+            
+        }
+        console.log('quantities 3',addtocartJson);
+    })
+    function contains(a, obj, q) {
+        for(var i =0;i<obj.length;i++){
+            if(obj[i].id == a){
+                if(obj[i].qty != q){
+                    addtocartJson[i].qty=q;
+                }
+                return true;
+            }                
+        }
+        return false;
+    }
+    function filterEmtpy(obj){
+        var newobj=[];
+        for(var i =0;i<obj.length;i++){
+            if(parseInt(obj[i].qty)!=0){
+                newobj[i]=obj[i];
+            }
+        }
+        newobj = newobj.filter(function (el) {
+            return el != null && el != "";
+        });
+        // console.log("newobj",newobj);
+        return newobj;
+    }
+    jQuery(document).on('click','.custom-action-addtocart',function(){
+        // alert('called');
+        var newaddtocartJson = filterEmtpy(addtocartJson);
+        if(newaddtocartJson.length>0){
+            var submiturl = "http://dev01.purplestores.in/sps_design/cform/index/index";
+            jQuery.ajax({
+                url: submiturl,
+                data: {data:newaddtocartJson},
+                type: 'post',
+                dataType: 'json',
+                success: function (res) {
+                    confirm({
+                        title: jQuery.mage.__('Success'),
+                        content: jQuery.mage.__(res['success'])                        
+                    });
+                    // alert();
+                    var sections = ['cart'];
+                    customerData.invalidate(sections);
+                    customerData.reload(sections, true);
+                    jQuery(".prod-qty").val('0');
+                    jQuery('.custom-msg').html('');
+                    addtocartJson=[];
+                },
+                error: function (res) {
+
+                }
+            })
+        }else{
+            alert('Please select quantity.')
+        }
+        
+    })
+});
+
+</script> 

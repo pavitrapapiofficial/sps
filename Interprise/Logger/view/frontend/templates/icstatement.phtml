@@ -1,0 +1,215 @@
+<?php $_gridrecords = $block->getCollectionstatement(); // get collection which we set in block class
+?>
+    <table class="data table table-order-items history" id="my-transactions-table">
+        <thead>
+            <tr>
+                <th class="number"><?= /* @noEscape */('Document Code') ?></th>
+                <th class="type"><?= /* @noEscape */('Type') ?></th>
+                <th class="date"><?= /* @noEscape */('Document Date') ?></th>
+                <th class="date"><?= /* @noEscape */('Due Date') ?></th>
+                <th class="reference"><?= /* @noEscape */('Reference') ?></th>
+                <th class="total"><?= /* @noEscape */('Gross Value') ?></th>
+                <th class="a-right last"><?= /* @noEscape */('Outstanding Value') ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php $_odd = '';
+            $totalOutStandingAmount = 0;
+            $total_amt = 0;
+            $_transactions = $_gridrecords;
+            $days120=0;
+            $days90 = 0;
+            $days30=0;
+            $dueDays60=0;
+            $days60 = 0;
+            $dueDays30 = 0;
+            $currentDue=0;
+            $future=0;
+            $current = 0;
+            $futureDue = 0;
+            $dueDays90 =0;
+            $dueDays120 =0;
+            ?>
+            <?php
+            if ($_gridrecords && count($_gridrecords)) {
+                foreach ($_transactions as $_transaction) : ?>
+                    <?php
+                    $outStandingAmount = $_transaction['balance_rate'];
+                
+                    $totlAmount = $_transaction['total_rate'];
+
+
+
+                    $totalOutStandingAmount += $outStandingAmount;
+
+                    $total_amt += $totlAmount;
+
+                    $now = time();
+
+                    $documentDate = strtotime(date('Y-m-d', strtotime($_transaction['document_date'])));
+
+                    $datediff = $now - $documentDate;
+
+                    $days = floor($datediff / (60 * 60 * 24));
+
+                    if ($days > 120) {
+
+                        $days120 += $outStandingAmount;
+                    }
+
+                    if ($days > 90 && $days <= 120) {
+
+                        $days90 += $outStandingAmount;
+                    }
+
+                    if ($days > 60 && $days <= 90) {
+
+                        $days60 += $outStandingAmount;
+                    }
+
+                    if ($days > 30 && $days <= 60) {
+
+                        $days30 += $outStandingAmount;
+                    }
+
+                    if ($days >= 0 && $days <= 30) {
+
+                        $current += $outStandingAmount;
+                    }
+
+                    if ($days < 0) {
+
+                        $future += $outStandingAmount;
+                    }
+
+
+
+                    $documentDueDate = strtotime(date('Y-m-d', strtotime($_transaction['due_date'])));
+
+                    $duedatediff = $now - $documentDueDate;
+
+                    $dueDays = floor($duedatediff / (60 * 60 * 24));
+
+                    if ($dueDays > 120) {
+
+
+
+                        $dueDays120 += $outStandingAmount;
+                    }
+
+                    if ($dueDays > 90 && $dueDays <= 120) {
+
+
+
+                        $dueDays90 += $outStandingAmount;
+                    }
+
+                    if ($dueDays > 60 && $dueDays <= 90) {
+
+
+
+                        $dueDays60 += $outStandingAmount;
+                    }
+
+                    if ($dueDays > 30 && $dueDays <= 60) {
+
+
+
+                        $dueDays30 += $outStandingAmount;
+                    }
+
+                    if ($dueDays >= 0 && $dueDays <= 30) {
+
+
+
+                        $currentDue += $outStandingAmount;
+                    }
+
+                    if ($dueDays < 0) {
+
+
+
+                        $futureDue += $outStandingAmount;
+                    }
+                    ?>
+                <tr>
+                    <td class="number"><?= /* @noEscape */$_transaction['invoice_code']; ?></td>
+                    <td class="reference"><?= /* @noEscape */$_transaction['document_type'] ?></td>
+                    <td class="date"><span class="nobr"><?= /* @noEscape */date('d-m-Y', strtotime($_transaction['document_date'])) ?></span></td>
+                    <td class="date" width="100px"><span class="nobr"><?= /* @noEscape */date('d-m-Y', strtotime($_transaction['due_date'])) ?></span></td>
+                    <td class="reference"><?= /* @noEscape */$_transaction['reference'] ?></td>
+                    <td class="a-right"><?= /* @noEscape */$block->formatPrice($_transaction['total_rate']); ?></td>
+                    <td class="a-right"><?= /* @noEscape */$block->formatPrice($_transaction['balance_rate']); ?></td>
+                </tr>
+            <?php endforeach; ?>
+                <?php } else { ?>
+                    <tr><td colspan="7"><div class="message info empty"><span><?= /* @noEscape */__('Records Not Found.'); ?></span></div></td></tr>
+        <?php } ?>
+        </tbody>
+        <tfoot>
+            <tr class="subtotal first">
+                <td colspan="4"></td>
+                <td   class="a-right" style="background:lightgray;">Total</td>
+                <td   class="a-right" ><?= /* @noEscape */$block->formatPrice($total_amt); ?></td>
+                <td class="last a-right"><span class="price"><?= /* @noEscape */$block->formatPrice($totalOutStandingAmount); ?></span></td>
+            </tr>
+        </tfoot>
+    </table>
+<br />
+<table class="data table table-order-items history" id="my-transactions-table">
+  <thead>
+    <tr>
+      <th colspan="6" style="background:lightgray;font-weight:bolder;">Summary</th>
+    </tr>
+    <tr>
+      <th colspan="6">Document Date</th>
+    </tr>
+    <tr>
+      <th class="a-right"><?= /* @noEscape */('Future') ?></th>
+      <th class="a-right"><?= /* @noEscape */('Current') ?></th>
+      <th class="a-right"><?= /* @noEscape */('30 Days') ?></th>
+      <th class="a-right"><?= /* @noEscape */('60 Days') ?></th>
+      <th class="a-right"><?= /* @noEscape */('90 Days') ?></th>
+      <th class="last a-right"><?= /* @noEscape */('120 Days') ?></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="a-right"><?=  /* @noEscape */$block->formatPrice($future) ?></td>
+      <td class="a-right"><?=  /* @noEscape */$block->formatPrice($current) ?></td>
+      <td class="a-right"><?=  /* @noEscape */$block->formatPrice($days30) ?></td>
+      <td class="a-right"><?=  /* @noEscape */$block->formatPrice($days60) ?></td>
+      <td class="a-right"><?=  /* @noEscape */$block->formatPrice($days90) ?></td>
+      <td class="last a-right"><?=  /* @noEscape */$block->formatPrice($days120) ?></td>
+    </tr>
+  </tbody>
+  <thead>
+    <tr>
+      <th colspan="6">Due Date</th>
+    </tr>
+    <tr>
+      <th class="a-right"><?= /* @noEscape */('Not Due') ?></th>
+      <th class="a-right"><?= /* @noEscape */('1-30 Days') ?></th>
+      <th class="a-right"><?= /* @noEscape */('31-60 Days') ?></th>
+      <th class="a-right"><?= /* @noEscape */('61-90 Days') ?></th>
+      <th class="a-right"><?= /* @noEscape */('91-120 Days') ?></th>
+      <th class="last a-right"><?= /* @noEscape */('120+ Days') ?></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="a-right"><?=  /* @noEscape */$block->formatPrice($futureDue) ?></td>
+      <td class="a-right"><?=  /* @noEscape */$block->formatPrice($currentDue) ?></td>
+      <td class="a-right"><?=  /* @noEscape */$block->formatPrice($dueDays30) ?></td>
+      <td class="a-right"><?=  /* @noEscape */$block->formatPrice($dueDays60) ?></td>
+      <td class="a-right"><?=  /* @noEscape */$block->formatPrice($dueDays90) ?></td>
+      <td class="last a-right"><?=  /* @noEscape */$block->formatPrice($dueDays120) ?></td>
+    </tr>
+  </tbody>
+</table>
+
+<style>
+    .a-right{
+        text-align: right;
+    }
+    </style>

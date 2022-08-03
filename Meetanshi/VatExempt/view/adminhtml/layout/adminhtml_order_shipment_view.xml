@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Provider: Meetanshi.
+ * Package: Meetanshi VatExempt
+ * Support: support@meetanshi.com (https://meetanshi.com/)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <block class="Magento\Backend\Block\Template" name="vatexempt_order" template="Meetanshi_VatExempt::customer_declared.phtml" />
+    </body>
+</page>

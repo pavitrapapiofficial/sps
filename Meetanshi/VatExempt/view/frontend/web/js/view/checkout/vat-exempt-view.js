@@ -1,0 +1,91 @@
+define(
+    [
+        'jquery',
+        'ko',
+        'uiComponent',
+        'underscore',
+        'Magento_Checkout/js/model/step-navigator',
+        'Magento_Customer/js/model/customer',
+        'mage/url'
+    ],
+    function ($,
+              ko,
+              Component,
+              _,
+              stepNavigator,
+              customer,
+              urlBuilder) {
+        'use strict';
+        var isValidForVatExempt = window.checkoutConfig.isValidForVatExempt;
+        
+        var isLogin = window.checkoutConfig.isLogin;
+
+        
+
+        return Component.extend({
+            defaults: {
+                template: 'Meetanshi_VatExempt/checkout/vat-exempt'
+            },
+
+            isVisible: ko.observable(false),
+
+            initialize: function () {
+                this._super();
+                this._isDisableDeclaration = window.checkoutConfig.isDisableDeclaration;
+                // register your step
+                if (isValidForVatExempt) {
+                    stepNavigator.registerStep(
+                        //step code will be used as step content id in the component template
+                        'vat-exempt',
+                        //step alias
+                        'vat-exempt',
+                        //step title value
+                        'Vat Exempt',
+                        //observable property with logic when display step or hide step
+                        this.isVisible,
+
+                        _.bind(this.navigate, this),
+
+                        15
+                    );
+                }
+                return this;
+            },
+
+            navigate: function () {
+                var self = this;
+                self.isVisible(true);
+            },
+
+            
+
+            navigateToNextStep: function () {
+                var isApplied = document.getElementById('processed').value;
+                var prosseed = true;
+                if(isLogin != 0){
+                    if(isApplied == 1){
+                        var form = '#vat-exempt-declain';
+                        if(this.validate(form)){
+                            if(typeof customer.customerData.id === 'undefined'){
+                                var url = urlBuilder.build("customer/account/login");
+                                window.location.href = url;
+                            }
+                            else {
+                                prosseed = true;
+                            }
+                        }
+                    }else {
+                        prosseed = true;
+                    }
+                }
+                if(prosseed){
+                    stepNavigator.next();
+                }
+
+            },
+            validate: function(form) {
+                return $(form).validation() && $(form).validation('isValid');
+            }
+        });
+    }
+);

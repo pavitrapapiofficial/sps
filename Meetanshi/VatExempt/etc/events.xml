@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Provider: Meetanshi.
+ * Package: Meetanshi VatExempt
+ * Support: support@meetanshi.com (https://meetanshi.com/)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sales_model_service_quote_submit_before">
+        <observer name="meetanshi_vatexempt_save_data" instance="Meetanshi\VatExempt\Observer\SaveVatExemptData"/>
+    </event>
+</config>

@@ -1,0 +1,27 @@
+
+.txtRgt{
+    text-align:right;
+}
+.nopadding{
+    padding:0;
+}
+table {
+    width:900px;
+    margin:auto;
+}
+table table{
+    width:100%;
+}
+table > thead > tr > th, table > tbody > tr > th, table > tfoot > tr > th, table > thead > tr > td, table > tbody > tr > td, table > tfoot > tr > td{
+    padding: 5px 4px;
+}
+.balign{
+    vertical-align: bottom;
+}
+
+.centerwithBorder{
+    text-align:center;border-right:1px solid #808080;border-bottom:1px solid #808080
+}
+.width5withborder{
+    width:10%;border-right:1px solid #808080;
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Provider: Meetanshi.
+ * Package: Meetanshi VatExempt
+ * Support: support@meetanshi.com (https://meetanshi.com/)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Meetanshi\VatExempt\Api\Data\GridInterface" type="Meetanshi\VatExempt\Model\Grid" />
+    <type name="Magento\Sales\Model\Order\Email\Container\OrderIdentity">
+        <plugin name="vatexempt_change_is_enable_method" type="Meetanshi\VatExempt\Plugin\Sales\Order\Email\Container\OrderIdentityPlugin"/>
+    </type>
+
+    <virtualType name="Meetanshi\VatExempt\Model\ResourceModel\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vat_exempt_reason</argument>
+            <argument name="resourceModel" xsi:type="string">Meetanshi\VatExempt\Model\ResourceModel\Grid</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="reason_record_grid_list_data_source" xsi:type="string">Meetanshi\VatExempt\Model\ResourceModel\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+       <referenceContainer name="product.info.main">
+            <container name="product.info.afterprice" after="product.info.price" label="Product info afterprice" htmlTag="div" htmlClass="product-info-after-price">
+                    <block class="Magento\Framework\View\Element\Template" name="your-block-name" template="PurpleCommerce_OutOfStockNotification::index/index.phtml" />
+            </container>
+        </referenceContainer>
+</page>

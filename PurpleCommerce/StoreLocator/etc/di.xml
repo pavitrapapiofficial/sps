@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Webkul Software
+ *
+ * @category Webkul
+ * @package Webkul_StoreSystem
+ * @author Webkul
+ * @copyright Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license https://store.webkul.com/license.html
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- plugins -->
+    <!-- <type name="Magento\Review\Model\ResourceModel\Review">
+        <plugin name="Webkul_StoreSystem::afterAggregate" type="PurpleCommerce\StoreLocator\Plugin\Model\ResourceModel\Review" sortOrder="1" />
+    </type>
+    <type name="Magento\Framework\App\Action\AbstractAction">
+        <plugin name="wk-abstractaction-context-plugin" type="PurpleCommerce\StoreLocator\Plugin\App\Action\Context" sortOrder="15"/>
+    </type> -->
+    <!-- plugins ends -->
+    
+    <preference for="PurpleCommerce\StoreLocator\Api\StoreRepositoryInterface" type="PurpleCommerce\StoreLocator\Model\StoreRepository" />
+    <preference for="PurpleCommerce\StoreLocator\Api\Data\StorerecordInterface" type="PurpleCommerce\StoreLocator\Model\Storerecord"/>
+    <preference for="PurpleCommerce\StoreLocator\Api\Data\StoredetailInterface" type="PurpleCommerce\StoreLocator\Model\Storedetail"/>    
+    <preference for="PurpleCommerce\StoreLocator\Api\StorerecordRepositoryInterface" type="PurpleCommerce\StoreLocator\Model\StorerecordRepository"/>
+    <preference for="PurpleCommerce\StoreLocator\Api\StoredetailRepositoryInterface" type="PurpleCommerce\StoreLocator\Model\StoredetailRepository"/>
+
+    <type name="Magento\Framework\EntityManager\MetadataPool">
+        <arguments>
+            <argument name="metadata" xsi:type="array">
+                <item name="PurpleCommerce\StoreLocator\Api\Data\StorerecordInterface" xsi:type="array">
+                    <item name="entityTableName" xsi:type="string">locations</item>
+                    <item name="identifierField" xsi:type="string">id</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="Storesystem_category_data_source" xsi:type="string">PurpleCommerce\StoreLocator\Model\ResourceModel\Category\Grid\Collection</item>
+                <item name="storelocator_store_details_data_source" xsi:type="string">PurpleCommerce\StoreLocator\Model\ResourceModel\Storerecord\Grid\Collection</item>
+                <item name="storelocator_store_individual_details_data_source" xsi:type="string">PurpleCommerce\StoreLocator\Model\ResourceModel\Storedetail\Grid\Collection</item>
+                
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="PurpleCommerce\StoreLocator\Model\ResourceModel\Storedetail\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">locations</argument>
+            <argument name="eventPrefix" xsi:type="string">store_detail_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">storedetail_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">PurpleCommerce\StoreLocator\Model\ResourceModel\Storedetail</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="PurpleCommerce\StoreLocator\Model\ResourceModel\Storerecord\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">locations</argument>
+            <argument name="eventPrefix" xsi:type="string">storesystem_Storerecord_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">storerecord_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">PurpleCommerce\StoreLocator\Model\ResourceModel\Storerecord</argument>
+        </arguments>
+    </virtualType>
+    
+    <virtualType name="StoreattributeGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
+        <arguments>
+            <argument name="collection" xsi:type="object" shared="false">PurpleCommerce\StoreLocator\Model\ResourceModel\Storeattribute\Collection</argument>
+            <argument name="filterPool" xsi:type="object" shared="false">StoreattributeGirdFilterPool</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="StoreSystem_attribute_data_source" xsi:type="string">PurpleCommerce\StoreLocator\Model\ResourceModel\Storeattribute\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="PurpleCommerce\StoreLocator\Model\ResourceModel\Storeattribute\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">pc_sl_store_attribute</argument>
+            <argument name="eventPrefix" xsi:type="string">webkul_StoreAttribute_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">webkul_attribute_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">PurpleCommerce\StoreLocator\Model\Resource\Storeattribute</argument>
+        </arguments>
+    </type>
+    <type name="PurpleCommerce\StoreLocator\Ui\Component\MassAction\Status\CartStatus">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="urlPath" xsi:type="string">Storesystem/cart/massUpdate</item>
+                <item name="paramName" xsi:type="string">cartruleupdate</item>
+                <item name="confirm" xsi:type="array">
+                    <item name="title" xsi:type="string" translate="true">Cart Rule Status</item>
+                    <item name="message" xsi:type="string" translate="true">Are you sure to update status of selected Cart Rules?</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="PurpleCommerce\StoreLocator\Ui\Component\MassAction\Status\AttributeStatus">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="urlPath" xsi:type="string">Storesystem/attribute/massUpdate</item>
+                <item name="paramName" xsi:type="string">attributeruleupdate</item>
+                <item name="confirm" xsi:type="array">
+                    <item name="title" xsi:type="string" translate="true">Attribute Rule Status</item>
+                    <item name="message" xsi:type="string" translate="true">Are you sure to update status of selected Rule(s)?</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

@@ -1,0 +1,148 @@
+<?php
+/**
+ * Webkul Software
+ *
+ * @category Webkul
+ * @package Webkul_RewardSystem
+ * @author Webkul
+ * @copyright Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license https://store.webkul.com/license.html
+ */
+?>
+<?php
+    $minimumAmount = 0;
+    $maximumAmount = 0;
+    $helper = $block->getLayout()->createBlock(\Webkul\RewardSystem\Block\RewardData::class)->getHelperClass();
+if ($helper->enableRewardSystem()) {
+    $customerId = $helper->getCustomerId();
+    $currency_code = $helper->getCurrentCurrencyCode();
+    $rewardPointCollection = $block->getRewardDetailCollection();
+    $rewradPoints = $block->getRemainingRewardPoints($customerId);
+    ?>
+        <div class="wk_rs_main">
+        <?php if ($rewradPoints || count($rewardPointCollection)) {?>
+            <div class='wk_rs_main_head'>
+                <div class="wk_rs_sub_head1">
+                  <img src='<?= $block->escapeHtml($block->getViewFileUrl('Webkul_RewardSystem::images/reward.png'));?>'
+                   width="70px" height="55px">
+                 </div>
+                <div class="wk_rs_sub_head2">
+                <h2>
+                  <span class="wk_rs_price">
+                    <?= $block->escapeHtml($rewradPoints)?>
+                  </span>
+                  <?= $block->escapeHtml(__(" Reward Points"))?>
+                </h2>
+                <span><?= /* @escapeNotVerified */ $block->escapeHtml(__("Use Reward Point on purchase"))?></span>
+                </div>
+            </div>
+            <div class='wk_rs_table'>
+                <h3><?= /* @escapeNotVerified */ $block->escapeHtml(__('Last Transactions'))?></h3>
+                <?php
+                if (count($rewardPointCollection)) { ?>
+                    <div class='table-wrapper'>
+                        <table class="data table rewardorder">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="col description">
+                                      <?= $block->escapeHtml(__('Description'))?>
+                                    </th>
+                                    <th scope="col" class="col debit">
+                                      <?= $block->escapeHtml(__('Debit Points'))?>
+                                    </th>
+                                    <th scope="col" class="col credit">
+                                      <?= $block->escapeHtml(__('Credit Points'))?>
+                                    </th>
+                                    <th scope="col" class="col status">
+                                      <?= $block->escapeHtml(__('Status'))?>
+                                    </th>
+                                    <th scope="col" class="col statusdescription">
+                                      <?= $block->escapeHtml(__('Status Description'))?>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    <?php	foreach ($rewardPointCollection as $record) { ?>
+                                <tr>
+                            <?php	if ($record->getOrderId()) {
+                                    $order = $block->getOrder()->load($record->getOrderId());
+                                    $incrementid = $order->getIncrementId();
+                                ?>
+                                    <td data-th="<?= $block->escapeHtml(__('Order id: '))?>" class="col description">
+                                      <?= $block->escapeHtml(__('Order id: '))?>
+                                      <a href="<?= $block->escapeHtml($helper->getOrderUrl($record->getOrderId()));?>">
+                                        #<?= $block->escapeHtml($incrementid);?>
+                                      </a>
+                                      <br>
+                                    </td>
+                                <?php } else { ?>
+                                    <td data-th="<?= $block->escapeHtml(__('Order id: '))?>" class="col description">
+                                      <?= $block->escapeHtml(__($record->getTransactionNote())); ?>
+                                    </td>
+                                <?php } ?>
+                                    <?php if ($record->getAction()=='credit') { ?>
+                                            <td data-th="<?= $block->escapeHtml(__("Debit"))?>" class="col debit">
+                                              <?= $block->escapeHtml(__("-"))?>
+                                            </td>
+                                            <td data-th="<?= $block->escapeHtml(__("Credit"))?>" class="col credit">
+                                              <?= $block->escapeHtml($record->getRewardPoint());?>
+                                            </td>
+                                    <?php } else { ?>
+                                            <td data-th="<?= $block->escapeHtml(__("Debit"))?>" class="col debit">
+                                              <?= $block->escapeHtml($record->getRewardPoint());?>
+                                            </td>
+                                            <td data-th="<?= $block->escapeHtml(__("Credit"))?>" class="col credit">
+                                              <?= /* @escapeNotVerified */ $block->escapeHtml(__("-"))?>
+                                            </td>
+                                    <?php }?>
+                                    <td data-th="<?= $block->escapeHtml(__("Status"))?>" class="col status">
+                                      <?php if ($record->getStatus()): ?>
+                                            <?php if ($record->getAction() == 'debit'): ?>
+                                                <?= $block->escapeHtml(__('Applied')); ?>
+                                        <?php elseif ($record->getAction() == 'expire'):?>
+                                            <?= $block->escapeHtml(__("Expired")); ?>
+                                            <?php else:?>
+                                                <?= $block->escapeHtml(__("Approved")); ?>
+                                        <?php endif; else: ?>
+                                            <?= $block->escapeHtml(__('Pending'));?>
+                                        <?php endif; ?>
+                                    </td>
+                                    <?php if ($record->getAction()=='debit') { ?>
+                                            <td data-th="<?= $block->escapeHtml(__("Status Description"))?>"
+                                               class="col statusdescription">
+                                               <?= $block->escapeHtml(__("-"));?>
+                                             </td>
+                                    <?php } else { ?>
+                                        <td data-th="<?= $block->escapeHtml(__("Status Description"))?>"
+                                           class="col statusdescription">
+                                          <?= $block->escapeHtml($helper->formatDate($record->getExpiresAt()));?>
+                                        </td>
+                                    <?php }?>
+                                </tr>
+                    <?php } ?>
+                        </tbody>
+                        </table>
+                    </div>
+                    <?php if ($block->getPagerHtml()): ?>
+                        <div class="order-transaction-toolbar toolbar bottom"><?=  $block->getPagerHtml(); ?></div>
+                    <?php endif ?>
+                <?php } else { ?>
+                    <h5><?= /* @escapeNotVerified */$block->escapeHtml(__('No records found!'));?></h5>
+                <?php } ?>
+            </div>
+            <?php } else { ?>
+                <div class='wk_rs_noreward_head'>
+                    <div class="wk_rs_sub_noreward">
+                      <img id="wk_rs_no_reward_img" width="70px" height="55px"
+                      src='<?= $block->escapeHtml($block->getViewFileUrl('Webkul_RewardSystem::images/reward.png'));?>'>
+                    </div>
+                    <div class="wk_rs_noreward_head2">
+                    <h2><?= $block->escapeHtml(__("No Reward Points"))?></h2>
+                    <span><?= $block->escapeHtml(__("Shopping with Us and Earn Reward Points"))?></span>
+                    </div>
+                </div>
+        <?php } ?>
+    </div>
+    <?php } else { ?>
+            <h3><?=  $block->escapeHtml(__('Please contact to Admin.'))?></h3>
+<?php	} ?>

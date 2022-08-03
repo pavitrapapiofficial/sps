@@ -1,0 +1,271 @@
+
+
+<style>
+
+    .footer-middle, .footer-right{
+
+        display:none !important;
+
+    }
+
+    .custm-swatch{
+
+        min-width: 60px;border: 1px solid #fff;font-size: 10px;font-weight: 500;padding: 4px 4px;background: #f0f0f0;color: #686868;
+
+    }
+
+    /* #stock-notify{
+
+        display:none;
+
+    } */
+
+    .changecss{
+
+        display:block !important;
+
+    }
+
+</style>
+
+<?php 
+
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+    $blockObj= $block->getLayout()->createBlock('Magento\ProductAlert\Block\Product\View');
+
+    $product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');
+
+    $productTypeInstance = $product->getTypeInstance();
+
+    $parentid = $product->getId();
+
+    // $blockObj= $block->getLayout()->createBlock('PurpleCommerce\Swatches\Block\GetCurrency');
+
+    // echo $blockObj->checkblock();
+
+    $appendVal = '<ul></ul>';
+
+    $appendheadVal = '';
+
+    $index = 0;
+
+    $show = 0;
+
+    if ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+
+        $usedProducts = $productTypeInstance->getUsedProducts($product);
+
+?>
+
+<?php 
+
+$appendVal = '<p id="stock-notify" style="display:none"><b>Out of stock:</b></p><ul style="padding-left: 0;">';
+
+?>
+
+        
+
+            <?php foreach ($usedProducts  as $child) { 
+
+                $index++;
+
+                $appendVal .= '<li class="myli" id="div'.$child->getId().'" index="'.$index.'" style="list-style:none">';
+
+                // die;
+
+                    $pid = $child->getId();
+
+                    $productCollection = $objectManager->create('Magento\Catalog\Model\Product')->load($pid);
+
+                    $productPriceById = $productCollection->getPrice();
+
+                    $RegularPrice = $productCollection->getPriceInfo()->getPrice('regular_price')->getValue();
+
+                    $specialPrice = $productCollection->getPriceInfo()->getPrice('special_price')->getValue();
+
+                    $productStockObj = $objectManager->get('Magento\CatalogInventory\Api\StockRegistryInterface')->getStockItem($child->getId());
+
+                    
+
+                    $oid='';
+
+                    $sizegetlable = $productCollection->getData('Sizes');
+
+                    $sizeattri = $productCollection->getResource()->getAttribute('Sizes');
+
+                    $sizeoptionTexts='';
+
+                    if ($sizeattri) {
+
+                        $sizeoptionTexts = $sizeattri->getSource()->getOptionText($sizegetlable);
+
+                    }
+
+                    $colorgetlable = $productCollection->getData('color');
+
+                    $colorattri = $productCollection->getResource()->getAttribute('color');
+
+                    $coloroptionTexts='';
+
+                    if ($colorattri) {
+
+                        $coloroptionTexts = $colorattri->getSource()->getOptionText($colorgetlable);
+
+                    }
+
+                    
+
+                    $curr = $blockObj->getCurrentCurrencySymbol();
+
+                    $curr = 'inr';
+
+                    $cl;
+
+                    if(empty($specialPrice)){
+
+                        $sp='';
+
+                        $cl = '';
+
+                    }else{
+
+                        $sp=$curr.$specialPrice;
+
+                        $cl = ' strike';
+
+                    }
+
+                    if(round($productStockObj->getData('qty'))==0){
+
+                        $show = 1;
+
+                        $val = $objectManager->create('PurpleCommerce\OutOfStockNotification\Helper\Data')->getSaveUrlCustom('stock',$pid);
+
+                        // $appendheadVal .= '<style>#option-label-size-143-item-'.$getlable.'{pointer-events:none}</style>';
+
+                        $appendVal .= '<span class="custom'.$cl.'" parent-id="'.$parentid.'"><span class="custm-swatch">'.$sizeoptionTexts.'</span> ['.$coloroptionTexts.'] </span> - <a href="'.$val.'" title="" class="action alert">Email me when back in stock</a>';
+
+                        
+
+                    }else{
+
+
+
+                    }
+
+                    // else
+
+                    //     $appendVal .= '<span class="custom'.$cl.'">'.$curr.$RegularPrice.'</span><span class="custom">'.$sp.'</span><br>';
+
+                    ?>
+
+                <?php $appendVal .='</li>'; ?>
+
+            <?php } ?>
+
+            
+
+<?php 
+
+$appendVal .='</ul>';
+
+    } else {
+
+        $productStockObj = $objectManager->get('Magento\CatalogInventory\Api\StockRegistryInterface')->getStockItem($product->getId());
+
+        
+
+        // echo "We have ".round($productStockObj->getData('qty'))." items in stock!";
+
+    }
+
+    // echo $appendVal;
+
+    // if($count>0){
+
+        // echo "check";
+
+        // $val = $objectManager->create('Magento\ProductAlert\Helper\Data')->getSaveUrlCustom('stock');
+
+        // print_r($val);
+
+        ?>
+
+        <!-- <div class="product alert stock">
+
+        <a href="<?php //echo $val;?>"
+
+        title="" class="action alert">
+
+            Notify me when this product is in stock
+
+        </a>
+
+        </div> -->
+
+        <?php
+
+    // }
+
+?>
+
+<script type="text/javascript">
+
+requirejs(['jquery','underscore'], function(jQuery,_){
+
+    jQuery(window).load(function(){
+
+        var large = '<?php echo $appendVal;?>';
+
+        var show = '<?php echo $show;?>';
+
+        // console.log('show',typeof(show));
+
+        
+
+        // console.log("loaed",large);
+
+        jQuery( ".product-options-wrapper div" ).click(function() {
+
+            // selpro();
+
+        });
+
+        jQuery('#product-options-wrapper').append(large);
+
+        // jQuery('head').append(headcontent);
+
+        
+
+        if(show=='1'){
+
+            // console.log('inside if');
+
+            // jQuery('.stock-notify').show();
+
+            var nav = document.getElementById("stock-notify");
+
+            nav.style.display = "block";
+
+        }else{
+
+            console.log('inside else');
+
+        }
+
+        // disableOutofStock();
+
+
+
+    });
+
+    
+
+    
+
+});
+
+
+
+</script> 

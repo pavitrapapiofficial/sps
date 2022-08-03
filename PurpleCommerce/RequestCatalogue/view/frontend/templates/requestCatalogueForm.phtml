@@ -1,0 +1,99 @@
+<?php
+
+    $countryList=$block->getCountries();
+
+    $regionList=$block->getRegion();
+
+?>
+
+<div class="col-sm-12">
+
+    <div class="request-container">
+
+        <div class="request-left">
+
+            <div class="brownWrapper">
+
+                <div class="brownTitle iconCata">Request a Catalogue</div>
+
+                <div class="brownContent">
+
+                    <p>Please complete your details below to be added to our catalogue mailing list to receive our seasonal brochures.</p>
+
+                    <form id="cata_form" action="<?php echo $this->getFormAction(); ?>" data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>"
+
+                             data-mage-init='{"validation":{}}' method="post">
+
+                        <input id="name" class="required-entry input-text form-control" title="Name" name="name" type="text" value="" placeholder="* Name" data-validate='{"required":true}'> 
+
+                        <input id="email" class="input-text validate-email form-control" title="Email" name="email1" type="text" value="" placeholder=" Email Address"> 
+
+                        <input id="phone" class="input-text form-control" title="Phone Number" name="phone" type="text" value="" placeholder="* Phone Number" data-validate='{"required":true}'> 
+
+                        <input id="add1" class="required-entry input-text form-control" title="Address 1" name="add1" type="text" value="" placeholder="* Address Line 1" data-validate='{"required":true}'> 
+
+                        <input id="add2" class="input-text form-control" title="Address 2" name="add2" type="text" value="" placeholder="Address Line 2"> 
+
+                        <input id="county" class="input-text form-control" title="County/State" name="county" type="text" value="" placeholder="County/State"> 
+
+                        <input id="pcode" class="required-entry input-text form-control" title="Post Code" name="pcode" type="text" value="" placeholder="* Post Code">
+
+                        <div class="input-box">
+
+                            <?php echo $countryList?>
+
+                            <!-- <select id="country" class="validate-select" name="country">
+
+                                <option value="">-- Country --</option>
+
+                                <option value="AF">Afghanistan</option>
+
+                                <option value="AX">Åland Islands</option>
+
+                                <option value="AL">Albania</option>
+
+                            </select> -->
+
+                        </div>
+
+                        <div class="buttons-set">
+
+                        <div class="required">* Required Fields</div>
+
+                        <button class="sps-btn" title="Submit" type="submit">Submit</button></div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="request-right">
+
+        <div class="registerBenefit"><a href="#"><img src="http://15.206.147.240/sps_design/pub/media/274760FC-83CB-4653-9923-4D0A2935F061.jpeg" alt=""></a></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    require(["jquery", "mage/calendar"], function($){
+
+    $("#datepicker").calendar({
+
+        showsTime: false,
+
+        dateFormat: "M/d/Y",
+
+        yearRange: "-120y:c+nn",
+
+        maxDate: "-1d", changeMonth: true, changeYear: true})
+
+    });
+
+</script>

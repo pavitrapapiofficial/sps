@@ -1,0 +1,360 @@
+<?php
+$details = $this->getOrderdetail();
+
+$detail = $details['json_data'];
+$detail_1 = $details['json_detail'];
+
+$detail = str_replace('\"', '"', $details['json_data']);
+$detail_1 = str_replace('\"', '"', $details['json_detail']);
+
+$detail = str_replace('\\\\\\\\\\\/', '/', $detail);
+$detail_1 = str_replace('\\\\\\\\\\\/', '/', $detail_1);
+
+$detail = str_replace('\\\\"', '', $detail);
+$detail_1 = str_replace('\\\\"', '', $detail_1);
+
+$detail = str_replace('\\\\\\/', '/', $detail);
+$detail_1 = str_replace('\\\\\\/', '/', $detail_1);
+
+$detail = str_replace('"request":"["', '"request":"', $detail);
+$detail_1 = str_replace('"request":"["', '"request":"', $detail_1);
+
+$detail = str_replace('"]"}', '"}', $detail);
+$detail_1 = str_replace('"]"}', '"}', $detail_1);
+
+//variables for detail
+$detail = json_decode($detail, true);
+$detail_1 = json_decode($detail_1, true);
+
+//echo "<pre>";
+//print_r($detail);
+//echo "<br>";
+//print_r($detail_1);
+//echo "</pre>";
+
+
+$result_detail = $detail['results']['data']['attributes'];
+
+$doc_type=['Invoice', 'Credit Memo', 'Opening Invoice'];
+
+if (in_array($result_detail['type'], $doc_type)) {
+    if (isset($result_detail['invoiceDate'])) {
+        $salesorder_date= $result_detail['invoiceDate'];
+        $salesorder_date = substr($salesorder_date, 8, 2)."-".substr($salesorder_date, 5, 2)."-".substr($salesorder_date, 0, 4);
+    
+    } else {
+        $salesorder_date= '';
+    }
+
+    if (isset($result_detail['invoiceCode'])) {
+        $salesorder_number= $result_detail['invoiceCode'];
+    } else {
+        $salesorder_number= '';
+    }
+    
+    
+    
+} else {
+
+    if (isset($result_detail['salesOrderDate'])) {
+        $salesorder_date= $result_detail['salesOrderDate'];
+        $salesorder_date = substr($salesorder_date, 8, 2)."-".substr($salesorder_date, 5, 2)."-".substr($salesorder_date, 0, 4);
+    
+    } else {
+        $salesorder_date= '';
+    }
+
+    if (isset($result_detail['salesOrderCode'])) {
+        $salesorder_number= $result_detail['salesOrderCode'];
+    } else {
+        $salesorder_number= '';
+    }
+}
+$salesorder_status = $result_detail['orderStatus'];
+$subTotalRate = $result_detail['subTotalRate'];
+$freightRate = $result_detail['freightRate'];
+$freightTaxCode = $result_detail['freightTaxCode'];
+$freightTaxRate = $result_detail['freightTaxRate'];
+$taxRate= $result_detail['taxRate'];
+$totalRate= $result_detail['totalRate'];
+$shipToName= $result_detail['shipToName'];
+
+if (isset($result_detail['shipToAddress'])) {
+    $shipToAddress= $result_detail['shipToAddress'];
+} else {
+    $shipToAddress= '';
+}
+
+if (isset($result_detail['shipToCity'])) {
+    $shipToCity= $result_detail['shipToCity'];
+} else {
+    $shipToCity= '';
+}
+
+if (isset($result_detail['shipToPostalCode'])) {
+    $shipToPostalCode= $result_detail['shipToPostalCode'];
+} else {
+    $shipToPostalCode= '';
+}
+
+//$shipToAddress= $result_detail['shipToAddress'];
+//$shipToCity= $result_detail['shipToCity'];
+//$shipToPostalCode= $result_detail['shipToPostalCode'];
+
+if (isset($result_detail['shipToCounty'])) {
+    $shipToCounty= $result_detail['shipToCounty'];
+} else {
+    $shipToCounty= '';
+}
+$shipToCountry= $result_detail['shipToCountry'];
+
+if (isset($result_detail['shipToPhone'])) {
+    $shipToPhone= $result_detail['shipToPhone'];
+} else {
+    $shipToPhone= '';
+}
+
+$shippingMethodCode= $result_detail['shippingMethodCode'];
+$paymentTermCode= $result_detail['paymentTermCode'];
+
+//////////////////// added by manisha 05/12/2018 //////////////////////////////
+
+$billToName= $result_detail['billToName'];
+$billToAddress= $result_detail['billToAddress'];
+
+if (isset($result_detail['billToCity'])) {
+    $billToCity= $result_detail['billToCity'];
+} else {
+    $billToCity= '';
+}
+
+if (isset($result_detail['billToPostalCode'])) {
+    $billToPostalCode= $result_detail['billToPostalCode'];
+} else {
+    $billToPostalCode= '';
+}
+
+
+if (isset($result_detail['billToCounty'])) {
+    $billToCounty= $result_detail['billToCounty'];
+} else {
+    $billToCounty= '';
+}
+$billToCountry= $result_detail['billToCountry'];
+
+if (isset($result_detail['billToPhone'])) {
+    $billToPhone= $result_detail['billToPhone'];
+} else {
+    $billToPhone= '';
+}
+
+
+
+//////////////////////// end edition /////////////////////////////////////////
+
+//variables for detail_1
+$result_detail_1 = [];
+if (isset($detail_1['results'])) {
+    $result_detail_1 = $detail_1['results']['data'];
+}
+?>
+
+<div class=""><div class="page-title-wrapper">
+        <h1 class="page-title">
+            <span class="base" data-ui-id="page-title-wrapper">Order # <?= $salesorder_number; ?></span>    </h1>
+
+        <span class="order-status"><?= $salesorder_status; ?></span>
+
+        <div class="order-date">
+            <span class="label">Order Date:</span> <date><?= $salesorder_date; ?></date></div>
+        <!--<div class="actions-toolbar order-actions-toolbar"><div class="actions">
+                        <a href="#" data-post="{&quot;action&quot;:&quot;http:\/\/127.0.0.1\/magento224\/index.php\/sales\/order\/reorder\/order_id\/1\/&quot;,&quot;data&quot;:{&quot;uenc&quot;:&quot;aHR0cDovLzEyNy4wLjAuMS9tYWdlbnRvMjI0L2luZGV4LnBocC9zYWxlcy9vcmRlci92aWV3L29yZGVyX2lkLzEv&quot;}}" class="action order">
+                    <span>Reorder</span>
+                </a>
+                <a class="action print" href="http://127.0.0.1/magento224/index.php/sales/order/print/order_id/1/" onclick="this.target='_blank';">
+                <span>Print Order</span>
+            </a>
+            </div>
+        </div>-->
+    </div>
+
+    <ul class="items order-links"><li class="nav item current"><strong>Items Ordered</strong></li></ul><div class="order-details-items ordered">
+
+        <div class="order-title">
+            <strong>Items Ordered</strong>
+        </div>
+
+        <div class="table-wrapper order-items">
+            <table class="data table table-order-items" id="my-orders-table" summary="Items Ordered">
+                <caption class="table-caption">Items Ordered</caption>
+                <thead>
+                    <tr>
+                        <th class="col name">Product Name</th>
+                        <th class="col sku">SKU</th>
+                        <th class="col price">Price</th>
+                        <th class="col qty">Qty</th>
+                        <th class="col subtotal">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (is_array($result_detail_1) && count($result_detail_1)>0) {
+                        foreach ($result_detail_1 as $k_result_1 => $v_result1) {
+                            $data_attributes = $v_result1['attributes'];
+                            $product_name = $data_attributes['itemDescription'];
+                            $product_itemcode = $data_attributes['itemCode'];
+                            $quantity_ordered = $data_attributes['quantityOrdered'];
+                            $netPriceRate = $data_attributes['netPriceRate'];
+                            $product_sku = $this->getMagentoSkuByItemcode($product_itemcode);
+                            if ($product_sku) {
+                                $product_itemcode  = $product_sku;
+                            }
+                            ?>
+                    <tr id="order-item-row-1">
+                        <td class="col name" data-th="Product Name">
+                            <strong class="product name product-item-name"><?= $product_name; ?></strong>
+                        </td>
+                        <td class="col sku" data-th="SKU"><?= $product_itemcode; ?></td>
+                        <td class="col price" data-th="Price">
+
+                            <span class="price-excluding-tax" data-label="Excl. Tax">
+                                <span class="cart-price">
+                                    <span class="price"><?= $this->helper('Magento\Framework\Pricing\Helper\Data')->currency($netPriceRate, true, false); ?></span>            </span>
+
+                            </span>
+                        </td>
+                        <td class="col qty" data-th="Qty">
+                            <ul class="items-qty">
+                                <li class="item">
+                                    <span class="title">Ordered</span>
+                                    <span class="content"><?= $quantity_ordered; ?></span>
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="col subtotal" data-th="Subtotal">
+
+                            <span class="price-excluding-tax" data-label="Excl. Tax">
+                                <span class="cart-price">
+                                    <span class="price"><?= $this->helper('Magento\Framework\Pricing\Helper\Data')->currency($netPriceRate*$quantity_ordered, true, false); ?></span>            </span>
+
+                            </span>
+                        </td>
+                    </tr>
+                        <?php }} ?>
+                </tbody>
+
+                <tfoot>
+                    <tr class="subtotal">
+                        <th colspan="4" class="mark" scope="row">
+                            Subtotal                    </th>
+                        <td class="amount" data-th="Subtotal">
+                            <span class="price"><?= $this->helper('Magento\Framework\Pricing\Helper\Data')->currency($subTotalRate, true, false); ?></span>                    </td>
+                    </tr>
+                    <tr class="shipping">
+                        <th colspan="4" class="mark" scope="row">
+                            Shipping &amp; Handling                    </th>
+                        <td class="amount" data-th="Shipping &amp; Handling">
+                            <span class="price"><?= $this->helper('Magento\Framework\Pricing\Helper\Data')->currency($freightRate, true, false); ?></span>                    </td>
+                    </tr>
+                    <tr class="shipping">
+                        <th colspan="4" class="mark" scope="row">
+                           VAT                   </th>
+                        <td class="amount" data-th="Tax">
+                            <span class="price"><?= $this->helper('Magento\Framework\Pricing\Helper\Data')->currency($taxRate, true, false); ?></span></td>
+                    </tr>
+                    <tr class="grand_total">
+                        <th colspan="4" class="mark" scope="row">
+                            <strong>Grand Total</strong>
+                        </th>
+                        <td class="amount" data-th="Grand Total">
+                            <strong><span class="price"><?= $this->helper('Magento\Framework\Pricing\Helper\Data')->currency($totalRate, true, false); ?></span></strong>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+
+        <div class="actions-toolbar">
+            <div class="secondary">
+                <a class="action back" href="http://127.0.0.1/magento224/index.php/sales/order/history/">
+                    <span>Back to My Orders</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="block block-order-details-view">
+        <div class="block-title">
+            <strong>Order Information</strong>
+        </div>
+        <div class="block-content">
+            <div class="box box-order-shipping-address">
+                <strong class="box-title"><span>Shipping Address</span></strong>
+                <div class="box-content">
+                    
+                    <address><?= $shipToName; ?><br>
+
+                        <?= $shipToAddress; ?><br>
+
+
+
+                        <?= $shipToCity; ?>,  <?= $shipToCounty; ?>, <?= $shipToPostalCode; ?><br>
+                        <?= $shipToCountry; ?><br>
+                        <a href="tel:<?= $shipToPhone; ?>"><?= $shipToPhone; ?></a>
+
+                    </address>
+                </div>
+            </div>
+
+            <div class="box box-order-shipping-method">
+                <strong class="box-title">
+                    <span>Shipping Method</span>
+                </strong>
+                <div class="box-content">
+                    <?= $shippingMethodCode; ?>                      </div>
+            </div>
+
+            <div class="box box-order-billing-address">
+                <strong class="box-title">
+                    <span>Billing Address</span>
+                </strong>
+                <div class="box-content">
+                    <address><?= $billToName; ?><br>
+
+                        <?= $billToAddress; ?><br>
+
+
+
+                        <?= $billToCity; ?>,  <?= $billToCounty; ?>, <?= $billToPostalCode; ?><br>
+                        <?= $billToCountry; ?><br>
+                        <a href="tel:<?= $billToPhone; ?>"><?= $billToPhone; ?></a>
+
+                    </address>
+                </div>
+            </div>
+            <div class="box box-order-billing-method">
+                <strong class="box-title">
+                    <span>Payment Method</span>
+                </strong>
+                <div class="box-content">
+                    <dl class="payment-method">
+                        <dt class="title"><?= $paymentTermCode; ?></dt>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input name="form_key" type="hidden" value="NFKcfAdFfAWHxLAr"><div id="authenticationPopup" data-bind="scope:'authenticationPopup'">
+        <script>
+            window.authenticationPopup = {"autocomplete": "off", "customerRegisterUrl": "http:\/\/127.0.0.1\/magento224\/index.php\/customer\/account\/create\/", "customerForgotPasswordUrl": "http:\/\/127.0.0.1\/magento224\/index.php\/customer\/account\/forgotpassword\/", "baseUrl": "http:\/\/127.0.0.1\/magento224\/index.php\/", "customerCheckoutUrl": "http:\/\/127.0.0.1\/magento224\/index.php\/checkout\/#shipping"};
+        </script>
+        <!-- ko template: getTemplate() -->
+
+
+        <!-- /ko -->
+
+    </div>
+
+
+
+
+</div>

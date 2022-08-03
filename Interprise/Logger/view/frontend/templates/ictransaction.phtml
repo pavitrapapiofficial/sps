@@ -1,0 +1,102 @@
+<?php  $_gridrecords = $block->getCollectiontransaction(); // get collection which we set in block class
+// echo "<pre>";
+// print_r($_gridrecords);
+// die;
+$query_string = '';
+$p = $block->getRequest()->getParam('p');
+$limit = $block->getRequest()->getParam('limit');
+if ($p) {
+    $query_string = '&p='.$p;
+}
+if ($limit) {
+    $query_string .= '&limit='.$limit;
+}
+$filter = $block->getRequest()->getParam('filter');
+?>
+<!----------------- Show Filter ------------------------------>
+<div class="toolbar">
+    <div class="sorter">
+        <div class="sort-by">
+            <label>Filter By</label>
+            <select onchange="setLocation(this.value)" title="Filter By">
+                <option value="<?=  /* @noEscape */$block->getUrl('icustomer/ctransaction/index/'); ?>?filter=complete<?=  /* @noEscape */$query_string;?>" <?php if (isset($filter) && $filter=='complete') {echo 'selected';}?>>Order History</option>
+                <option value="<?=  /* @noEscape */$block->getUrl('icustomer/ctransaction/index/'); ?>?filter=open<?=  /* @noEscape */$query_string;?>" <?php if ($filter=='open' || !$block->getRequest()->getParams()) {echo 'selected';}?>>Outstanding Orders</option>
+            </select>
+        </div>
+    </div>
+    <?=  /* @noEscape */$block->getPagerHtml(); ?>
+</div>
+<!----------------- End Filter ------------------------------>
+
+    <div class="table-wrapper orders-history">
+        <table class="data table table-order-items history" id="my-orders-table">
+            <caption class="table-caption"><?=  /* @noEscape */__('Grid Record') ?></caption>
+            <thead>
+                <tr>
+                    <th scope="col" class="col title"><?=  /* @noEscape */__('Document Code') ?></th>
+                    <th scope="col" class="col type"><?=  /* @noEscape */__('Type') ?></th>
+                    <th scope="col" class="col date"><?=  /* @noEscape */__('Document Date') ?></th>
+                    <th scope="col" class="col duedate"><?= /* @noEscape */ __('Due Date') ?></th>
+                    <th scope="col" class="col total"><?=  /* @noEscape */__('Total') ?></th>
+                    <th scope="col" class="col balance"><?=  /* @noEscape */__('Outstanding') ?></th>
+                    <th scope="col" class="col ">Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+    <?php
+    $alldata=$_gridrecords['alldata'];
+    if(empty($alldata)){
+      ?>
+      <div class="danger" style="background:#fdf0d5;color:#6f4400"><span>Records Not Found.</span></div>
+      <?php
+    }else{
+//       $tmp = Array();
+// foreach($alldata as &$ma)
+//     $tmp[] = &$ma['attributes']['invoiceDate'];
+// array_multisort($tmp, SORT_DESC,$alldata,SORT_DESC);
+
+      for($i=0;$i<count($alldata);$i++){
+        if($alldata[$i]['attributes']['currencyCode']=='GBP'){
+          $currencycode='£';
+        }else if($alldata[$i]['attributes']['currencyCode']=='USD'){
+          $currencycode='$';
+        }else if($alldata[$i]['attributes']['currencyCode']=='EURO'){
+          $currencycode='€';
+        }else{
+          $currencycode='';
+        }
+        $invo_id =  $alldata[$i]['attributes']['invoiceCode'];
+        ?>
+        <tr>
+          <th scope="row"><?php echo $alldata[$i]['attributes']['invoiceCode']?></th>
+          <td><?php echo $alldata[$i]['attributes']['type']?></td>
+          <td><?php echo date('d-m-Y', strtotime($alldata[$i]['attributes']['invoiceDate']));?></td>
+          <td><?php echo date('d-m-Y', strtotime($alldata[$i]['attributes']['dueDate']));?></td>
+          <td><?php echo $currencycode.number_format((float)$alldata[$i]['attributes']['totalRate'], 2, '.', ',');?></td>
+          <td><?php echo $currencycode.number_format((float)$alldata[$i]['attributes']['balanceRate'], 2, '.', ',');?></td>
+          <td><a href="<?= /* @noEscape */ $block->getUrl("icustomer/ctransaction/transactiondetail/id/$invo_id")?>">Detail</a></td>
+        </tr>
+        <?php
+      }
+
+    }
+     ?>
+  </tbody>
+        </table>
+    </div>
+
+<style>
+    .total{
+        text-align: right;
+    }
+    .balance{
+        text-align: right;
+    }
+</style>
+
+<script>
+    function setLocation(url){
+        window.location.href = encodeURI(url);
+    }
+
+</script>

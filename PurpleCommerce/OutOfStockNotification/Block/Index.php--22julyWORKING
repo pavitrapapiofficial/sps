@@ -1,0 +1,75 @@
+<?php
+namespace PurpleCommerce\PDFInvoice\Block;
+
+use Exception;
+use Psr\Log\LoggerInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+
+class Index extends \Magento\Framework\View\Element\Template
+{   
+     /**
+     * @var InvoiceRepositoryInterface
+     */
+    private $invoiceRepository;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    public function __construct(
+        \Magento\Framework\View\Element\Template\Context $context,
+        InvoiceRepositoryInterface $invoiceRepository,
+        LoggerInterface $logger,
+        array $data = []
+        
+    ) {
+        parent::__construct($context, $data);
+        $this->invoiceRepository = $invoiceRepository;
+        $this->logger = $logger;
+        
+        
+    }
+     /**
+     * Get Invoice data
+     *
+     * @return InvoiceInterface|null
+     */
+    public function getInvoiceData($id): ?InvoiceInterface
+    {
+        $invoiceId = ltrim($id, '#');
+        try {
+            $invoiceData = $this->invoiceRepository->get($invoiceId);
+        } catch (Exception $exception)  {
+            $this->logger->critical($exception->getMessage());
+            $invoiceData = null;
+            // echo "inside";
+        }
+        // echo "<pre>";
+        // print_r($invoiceData->getData());
+        // echo "</pre>";
+        // die;
+        return $invoiceData;
+    } 
+    
+    public function getOrderData($id)
+    {
+        $invoiceId = ltrim($id, '#');
+        try {
+            $invoiceData = $this->invoiceRepository->get($invoiceId);
+            $order = $invoiceData->getOrder();
+            
+        } catch (Exception $exception)  {
+            $this->logger->critical($exception->getMessage());
+            $invoiceData = null;
+            $orderId = null;
+            // echo "inside";
+        }
+        // echo "<pre>";
+        // print_r($invoiceData->getData());
+        // echo "</pre>";
+        // die;
+        return $order;
+    }
+    
+}

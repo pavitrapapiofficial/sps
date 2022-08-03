@@ -1,0 +1,153 @@
+<?php
+/**
+ * GiaPhuGroup Co., Ltd.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the GiaPhuGroup.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.giaphugroup.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    PHPCuong
+ * @package     PHPCuong_CustomerAccount
+ * @copyright   Copyright (c) 2018-2019 GiaPhuGroup Co., Ltd. All rights reserved. (http://www.giaphugroup.com/)
+ * @license     https://www.giaphugroup.com/LICENSE.txt
+ */
+ /** @var \PHPCuong\CustomerAccount\Block\Form\Register $block */
+ use Mageplaza\SocialLogin\Model\System\Config\Source\Position;
+
+?>
+<?php if (!$block->customerIsAlreadyLoggedIn() && $block->getRegistration()->isAllowed()): ?>
+    <?php 
+        $blockObj= $block->getLayout()->createBlock('Mageplaza\SocialLogin\Block\Popup\Social');
+        $availableSocials = $blockObj->getAvailableSocials(); 
+    ?>
+    <style>
+        .customer-popup-register {
+            display: none;
+        }
+    </style>
+    <div id="customer-popup-register" class="customer-popup-register vvv">
+        <!-- <span class="pp-register-close">X</span> -->
+    <div class="sign-lefty">
+                <div class="main-tlt">Create an Account</div>
+                <div class="main-mini">with us</div>
+                <?php if ($blockObj->canShow(Position::PAGE_POPUP) && sizeof($availableSocials)) : ?>
+                    <div class="block social-login-authentication-channel col-mp mp-5">
+                        <div class="block-content">
+                            <?php foreach ($availableSocials as $key => $social) : ?>
+                                <div class="actions-toolbar social-btn <?= $key ?>-login">
+                                    <a class="btn btn-block btn-social btn-<?= $blockObj->getBtnKey($key) ?>"
+                                    data-mage-init='{"socialProvider": {"url": "<?= $social['login_url'] ?>", "label": "<?= __('Login By %1', $social['label']) ?>"}}'>
+                                        <span class="fa fa-<?= $blockObj->getBtnKey($key) ?>"></span>
+                                        <?= __('Sign in with %1', $social['label']) ?>
+                                    </a>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <p class="accept">By signing up, you accept our T&Cs and Privacy Policies.</p>
+                    <script type="text/javascript">
+                        require(['jquery'], function ($) {
+                            $('#social-login-authentication').removeClass('mp-12').addClass('mp-7');
+                        });
+                    </script>
+                <?php endif; ?>
+    </div>  
+        <form class="form-create-account" action="<?php /* @escapeNotVerified */ echo $block->getPostActionUrl() ?>" method="post" id="customer-popup-form-register" enctype="multipart/form-data" autocomplete="off" data-mage-init='{"validation":{}}'>
+            <?php echo $block->getBlockHtml('formkey'); ?>
+            <input type="hidden" name="redirect_url" value="<?php echo $this->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]); ?>" />
+            <div class="messages"></div>
+            <p><?php /* @escapeNotVerified */ echo __('or use your email address') ?></p>
+            <fieldset class="fieldset create info">
+                
+                <?php echo $block->getLayout()->createBlock('Magento\Customer\Block\Widget\Name')->setObject($block->getFormData())->setForceUseCustomerAttributes(true)->toHtml() ?>
+               
+            </fieldset>
+            <fieldset class="fieldset create account" data-hasrequired="<?php /* @escapeNotVerified */ echo __('* Required Fields') ?>">
+                
+                <div class="field required">
+                    <label for="popup-email_address" class="label"><span><?php /* @escapeNotVerified */ echo __('email') ?></span></label>
+                    <div class="control">
+                        <input type="email" placeholder="email" name="email" autocomplete="email" id="popup-email_address" value="" title="<?php /* @escapeNotVerified */ echo __('Email') ?>" class="input-text" data-validate="{required:true, 'validate-email':true}">
+                    </div>
+                </div>
+                <div class="field password required" data-mage-init='{"passwordStrengthIndicator": {}}'>
+                    
+                    <div class="control">
+                        <input type="password" placeholder="Password" name="password" id="password"
+                               title="<?php /* @escapeNotVerified */ echo __('Password') ?>"
+                               class="input-text"
+                               data-password-min-length="<?php echo $block->escapeHtml($block->getMinimumPasswordLength()) ?>"
+                               data-password-min-character-sets="<?php echo $block->escapeHtml($block->getRequiredCharacterClassesNumber()) ?>"
+                               data-validate="{required:true, 'validate-customer-password':true}"
+                               autocomplete="off">
+                        <div id="password-strength-meter-container" data-role="password-strength-meter" >
+                            <div id="password-strength-meter" class="password-strength-meter">
+                                <?php /* @escapeNotVerified */ echo __('Password Strength'); ?>:
+                                <span id="password-strength-meter-label" data-role="password-strength-meter-label" >
+                                    <?php /* @escapeNotVerified */ echo __('No Password'); ?>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field confirmation required">
+                    
+                    <div class="control">
+                        <input type="password" placeholder="Confirm Password" name="password_confirmation" title="<?php /* @escapeNotVerified */ echo __('Confirm Password') ?>" id="password-confirmation" class="input-text" data-validate="{required:true, equalTo:'#password'}" autocomplete="off">
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset>
+            <?php if ($block->isNewsletterEnabled()): ?>
+                    <div class="field choice newsletter">
+                        <input type="checkbox" name="is_subscribed" title="<?php /* @escapeNotVerified */ echo __('Sign Up for Newsletter') ?>" value="1" id="popup-is_subscribed" class="checkbox">
+                        <label for="is_subscribed" class="label"><span><?php /* @escapeNotVerified */ echo __('Sign Up for Newsletter') ?></span></label>
+                    </div>
+                <?php endif ?>
+            </fieldset>
+            
+            <div class="actions-toolbar">
+                <div class="primary">
+                    <button type="submit" class="action submit primary" title="<?php /* @escapeNotVerified */ echo __('Sign Up') ?>"><span><?php /* @escapeNotVerified */ echo __('Sign Up') ?></span></button>
+                </div>
+                
+                <div class="secondary"><a class="action remind" ><span><?php /* @escapeNotVerified */ echo __('Already a Member?') ?></span></a></div>
+            </div>
+        </form>
+        <script type="text/x-magento-init">
+            {
+                "#customer-popup-register": {
+                    "PHPCuong_CustomerAccount/js/action/customer-authentication-popup": {
+                        "popupTitle": "",
+                        "innerWidth": "600"
+                    }
+                }
+            }
+        </script>
+    </div>
+<?php endif; ?>
+<?php 
+$blockObj= $block->getLayout()->createBlock('Mageplaza\SocialLogin\Block\Popup\Social');
+$availableSocials = $blockObj->getAvailableSocials(); 
+$authenConfig = $blockObj->getSocialButtonsConfig(); ?>
+<?php if ($blockObj->canShow(Position::PAGE_AUTHEN) && sizeof($availableSocials)) : ?>
+    <script>
+        window.socialAuthenticationPopup = <?= Zend_Json::encode($authenConfig); ?>;
+    </script>
+<?php endif; ?>
+ <script>
+require(['jquery'], function ($) {
+    // $(document).on("click", "")
+    $(".remind").click(function() {
+        // console.log("clicked");
+        $( ".modals-overlay" ).trigger( "click" );
+    });
+});
+</script>

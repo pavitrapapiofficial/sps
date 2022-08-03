@@ -1,0 +1,93 @@
+<script>
+    require(['jquery','domReady!'], function ($) {   
+        if ($.cookie("currency_set")){
+            // alert('cookie is set');
+            window.location.replace("http://dev01.purplestores.in/theshop_design/");
+        }
+    })
+    </script>
+<style>
+    .footer-middle, .footer-right{
+        display:none !important;
+    }
+    /* .whatapp-btn,#mageplaza-betterpopup-block,.copyright{
+        display:none !important;
+    }
+    main#maincontent.simplepage {
+        display: block;
+        margin-top: 50px;
+        max-width: 1120px !important;
+    } */
+</style>
+<?php 
+echo "<div id='selectcurr'><a href='http://dev01.purplestores.in/theshop_design/'>home</a></div>";
+echo $this->getLayout()
+            ->createBlock("Magento\Directory\Block\Currency")
+            ->setTemplate("Magento_Directory::currency.phtml")
+            ->toHtml();
+echo $this->getLayout()
+          ->createBlock('Magento\Cms\Block\Block')
+          ->setBlockId('homevideo')
+          ->toHtml();
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$currencysymbol = $objectManager->get('Magento\Store\Model\StoreManagerInterface');
+echo 'currency-'.$currency = $currencysymbol->getStore()->getCurrentCurrencyCode();
+?>
+<script>
+    require(['jquery','domReady!'], function ($) {   
+        // if ($.cookie("currency_set")){
+        //     alert('cookie is set');
+        //     window.location.replace("http://dev01.purplestores.in/theshop_design/");
+        // }
+        // $(document).on('click','#selectcurr', function(){
+
+        //     if (! $.cookie("currency_set")){
+        //         // alert('cookie not found');
+        //         $.cookie('currency_set', '1', { expires: 365, path: '/' });
+        //         window.history.back();
+        //     }else{
+        //         alert('cookie is set');
+        //     }
+        // });
+        var getselected = 'language-'+'<?php echo $currency;?>';
+        console.log('sekec',getselected);
+        $(document).on('click','.'+getselected+'', function(){
+            if (! $.cookie("currency_set")){
+                $.cookie('currency_set', '1', { expires: 365, path: '/' });
+                window.history.back();
+            }else{
+                // alert('cookie is set');
+            }
+        }
+        $(document).on('click','.switcher-option', function(){
+            console.log("li clicked");
+            if (! $.cookie("currency_set")){
+                $.cookie('currency_set', '1', { expires: 365, path: '/' });
+                window.history.back();
+            }else{
+                // alert('cookie is set');
+            }
+        });
+
+        $(document).on('click','.selectcurrency-index-index .page-main > .columns > .column.main > .switcher.currency.switcher-currency > strong.label.switcher-label', function(){
+            $(this).toggleClass("home-currency-active");
+            $(this).next(".actions").toggle(100);
+        });
+        // getCookieValue(customname);
+        function getCookieValue(cookiename) {
+            var name = cookiename + "=";
+            var cookieSplit = document.cookie.split(';');
+            for(var i = 0; i <cookieSplit.length; i++) {
+                var a = cookieSplit[i];
+                while (a.charAt(0)==' ') {
+                    a = a.substring(1);
+                }
+                if (a.indexOf(name) == 0) {
+                    return a.substring(name.length,a.length);
+                }
+            }
+            return "";
+        }
+    });
+
+</script>

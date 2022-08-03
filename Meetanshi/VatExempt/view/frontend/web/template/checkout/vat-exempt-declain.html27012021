@@ -1,0 +1,85 @@
+<div class="vat-exempt-option-content" data-role="content">
+    <form class="form vat-exempt-declain" id="vat-exempt-declain" novalidate="novalidate">
+        <input type="hidden" value="0" name="processed" id="processed">
+        <fieldset id="co-vatexempt"  data-bind="blockLoader: isLoading">
+            <div class="form-list">
+                <div class="wide" data-bind="html: getProductsName()">
+
+                </div>
+                <br />
+                <div class="wide" data-bind="html: getCustomerNotes()">
+
+                </div>
+                <div>
+                    <br>
+                    Please fill the form below:
+                    <br>
+                </div>
+
+                <br />
+                <div class="wide">
+                    <div class="field">
+                        <label class="label" for="exemptname">
+                            <span data-bind="i18n: 'Name of the VAT Exemption Applicant'">Name of the VAT Exemption Applicant</span>
+                        </label>
+                        <div class="control">
+                            <input class="input-text"
+                                   type="text"
+                                   name='exemptname'
+                                   id="exemptname"
+                                   title="Name"
+                                   data-validate="{'required-entry':true}"
+                                   data-bind="value:exemptname, attr:{placeholder: $t('Name')}"/>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="wide">
+                    <div class="field">
+                        <label class="label" for="exemptreason">
+                            <span data-bind="i18n: 'Select Disability Reason'">Select Disability Reason</span>
+                        </label>
+                        <div class="control">
+                            <select id="exemptreason" name="exemptreason"
+                                    data-bind="options: getReasons,
+                                               value: selectedReasons,
+                                               optionsCaption: 'Choose...'"
+                                    data-validate="{'required-entry':true}">
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="wide">
+                    <div class="control">
+                        <input
+                                type="checkbox"
+                                name="accept"
+                                id="accept"
+                                data-validate="{'required-entry':true}"/>
+                        <span data-bind="html: accept"></span>
+                    </div>
+                </div>
+                <br />
+                <div class="wide">
+                    <div class="field success message"  style="display: none">
+                        <span id="applied" data-bind="test: successMessage"></span>
+                    </div>
+                </div>
+                <br />
+                <div class="actions-toolbar">
+                    <div class="primary">
+
+                        <button class="action action-apply" id="action-apply" type="submit" data-bind="'value': $t('Apply Vat Exempt'), click: apply">
+                            <span><!-- ko i18n: 'Apply VAT Exempt'--><!-- /ko --></span>
+                        </button>
+                        <button class="action action-cancel" id="action-cancel" disabled="disabled" type="submit" data-bind="'value': $t('Cancel Vat Exempt'), click: cancel">
+                            <span><!-- ko i18n: 'Cancel VAT Exempt'--><!-- /ko --></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>

@@ -1,0 +1,18 @@
+<?php
+$helper = $block->getLayout()->createBlock(\Webkul\RewardSystem\Block\RewardPoints::class)->getHelperClass();
+$registrationStatus = $helper->getAllowRegistration();
+$enableRewardSystem = $helper->enableRewardSystem();
+$registrationPoints = $helper->getRewardOnRegistration();
+if ($registrationStatus == 1 && $enableRewardSystem== 1) {    ?>
+            <div>
+                <h3 class="wk_rs_review_style wk_rs_advertise_product_style">
+                    <span class="wk_rs_product_greet"></span>
+                    <?= $block->escapeHtml(
+                        __(
+                            'Did you know that you earn %1 Feather Points on creating your account?',
+                            $registrationPoints
+                        )
+                    )?>
+                </h3>
+            </div>
+<?php     }?>

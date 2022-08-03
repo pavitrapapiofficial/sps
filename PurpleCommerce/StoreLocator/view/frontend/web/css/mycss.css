@@ -1,0 +1,130 @@
+
+.txtRgt{
+    text-align:right;
+}
+.nopadding{
+    padding:0;
+}
+#banner_slider{
+    display: none;
+}
+h2{
+    display: block;
+}
+table {
+    width:900px;
+    margin:auto;
+}
+table table{
+    width:100%;
+}
+table > thead > tr > th, table > tbody > tr > th, table > tfoot > tr > th, table > thead > tr > td, table > tbody > tr > td, table > tfoot > tr > td{
+    padding: 5px 4px;
+}
+.balign{
+    vertical-align: bottom;
+}
+
+.centerwithBorder{
+    text-align:center;border-right:1px solid #808080;border-bottom:1px solid #808080
+}
+.width5withborder{
+    width:10%;border-right:1px solid #808080;
+}
+#map {
+  width: 100%;
+height: 550px;
+position: relative;
+overflow: hidden;
+}
+.search-title {
+background: #EDEDED;
+padding: 10px;
+border-radius: 4px 4px 0px 0px;
+font-size: 22px;
+font-weight: 300;
+border-bottom: 1px solid #d7d7d7;
+box-shadow: 0px 5px 5px 0px rgba(0,0,0,0.26);
+}
+.search-box {
+margin-bottom: 10px;
+background: #f6f6f6 !important;
+padding: 10px;
+border-radius: 0px 0px 4px 4px;
+box-shadow: 0px 5px 5px 0px rgba(0,0,0,0.26);
+height: 120px;
+}
+#postcode {
+border: 1px solid #ccc;
+width: 100%;
+border-radius: 4px;
+padding: 13px;
+font-size: 20px;
+margin-top: 20px;
+}
+.formWrap label {
+display: inline-block;
+width: 18.8%;
+border-radius: 4px;
+background: #FFFFFF;
+padding: 10px;
+border: 1px solid #ccc;
+text-align: center;
+margin-top: 20px;
+}
+.formWrap button {
+display: block;
+width: 100%;
+background: #cbb7cc;
+border: 1px solid #cbb7cc;
+color: #FFFFFF;
+box-shadow: 0px 6px 5px 0px rgba(158,158,158,0.45);
+border-radius: 4px;
+padding: 10px;
+}
+.formWrap button#lookup {
+margin-bottom: 10px;
+}
+.infoBox .innner {
+background: #f6f6f6;
+padding: 10px;
+border-radius: 0px 0px 4px 4px;
+box-shadow: 0px 5px 5px 0px rgba(0,0,0,0.26);
+min-height: 219px;
+}
+.title {
+font-size: 18px;
+display: block;
+font-weight: 500;
+margin-bottom: 5px;
+}
+.address {
+display: block;
+font-size: 16px;
+margin-bottom: 5px;
+border-bottom: 1px solid #ccc;
+padding-bottom: 5px;
+}
+.phone {
+display: block;
+font-size: 16px;
+}
+.distance {
+display: block;
+font-size: 16px;
+}
+.ee {
+margin-left: -15px;
+margin-right: -15px;
+margin-top: 20px;
+}
+.infoBox {
+margin-bottom: 30px;
+}
+.formWrap label input {
+display: inline;
+}
+.formWrap label .labelText {
+display: block;
+line-height: 13px;
+}

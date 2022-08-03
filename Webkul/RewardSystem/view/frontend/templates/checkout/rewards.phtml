@@ -1,0 +1,118 @@
+<?php
+/**
+ * Webkul Software.
+ *
+ * @category  Webkul
+ * @package   Webkul_RewardSystem
+ * @author    Webkul
+ * @copyright Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+?>
+<?php if ($block->checkModuleStatus() && $block->getCustomerRewardData()) { ?>
+    <?php
+    $appliedRewards = $block->getAppliedRewardPoint();
+    $helper = $block->getHelper();
+    ?>
+<div class="cart-discount">
+    <div class="payment-option" id="block-discount" >
+        <div class="payment-option-content content custom-reward" data-role="content" aria-labelledby="block-discount-heading">
+            <div class="wk_rs_points_details wk_rs_total_points">
+                <div class="wk_rs_cartsign ffff">
+                <span>You have</span> <span class="wk_rs_reward_value" ><?= $block->escapeHtml($block->getCustomerRewardData()); ?></span> <span class="wk_rs_reward_text"><span><?= /* @noEscape */ __('Sandpiper Points'); ?></span></span>
+                    
+                </div>
+            </div>
+            <div class="wk_rs_points_details wk_rs_total_points">
+                <div class="wk_rs_cartsign">
+                    <sup class="wk_rs_amount_currency">
+                      <?= $block->escapeHtml($block->getCheckoutCurrencySymbol()); ?>
+                    </sup>
+                    <span class="wk_rs_reward_value" ><?= $block->escapeHtml($block->rewardValue()); ?></span>
+                    <div style="display:inline-block">
+                        <span class="wk_rs_reward_text">
+                          <span><?= /* @noEscape */ __('Per Sandpiper Point'); ?></span>
+                        </span>
+                        <p><span><?= /* @noEscape */ __('Amount'); ?></span></p>
+                    </div>
+                </div>
+            </div>
+            <?php if (!$appliedRewards) { ?>
+                <form class="form form-discount" id="reward-form" method="post"
+                action="<?= $block->escapeUrl($block->getUrl('rewardsystem/checkout/applyrewards')) ?>"
+                >
+                    <input class="input-text" type="hidden" name="number_of_rewards" id="number_of_rewards"
+                     value="<?= $block->escapeHtml($block->getCustomerRewardData()); ?>">
+                    <div class="payment-option-inner">
+                        <div class="field">
+                            <div class="control">
+                                <span class="wk_rs_reward_text">
+                                    <span><?= /* @noEscape */ __('Use Your Feather Points:'); ?></span>
+                                </span>
+                                <input class="input-text" type="text" id="reward_points" name="used_reward_points" required="true"
+                                placeholder="<?= $block->escapeHtml(__('Enter Feather Points')); ?>"
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    <button class="action action-apply" type="submit" id="apply_rewards"
+                    value="<?= /* @noEscape */ __('Apply Sandpiper Point(s)'); ?>">
+                        <span><span><?= /* @noEscape */ __('Use My Points'); ?></span></span>
+                    </button>
+                </form>
+                <p class="feather-text">
+                    <strong>You currently have <?= round($block->escapeHtml($block->getCustomerRewardData()),0); ?> Feather Points in your account. Your Points are worth <?= $block->escapeHtml($block->getCheckoutCurrencySymbol()); ?><?= $block->escapeHtml($block->rewardValue() * $block->getCustomerRewardData()); ?>.</strong>
+                    <span>If you would like to use your points on this order, please enter the number of points you wish to spend in the box on the left and click "Use My Points" to apply the discount to your order.</span>
+                </p>
+            <?php } ?>
+            <div class="actions-toolbar"></div>
+            <?php if ($appliedRewards) { ?>
+                <div class="payment-option-inner">
+                    <div class="field">
+                        <form id="cancel-Reward-form"
+                        action="<?= $block->escapeUrl($block->getUrl('rewardsystem/checkout/cancelrewards')) ?>"
+                        method="post">
+                            <dl class="wk_applied_rewards">
+                                <dt><span><?= /* @noEscape */ __('Applied Feather Points'); ?></span></dt>
+                                <dd class="wk_rs_applied_reward">
+                                    <span class="form-list wk_rs_reward_applied">
+                                        <span class="wk_rs_applied_reward_text">
+                                            <span><span><?= /* @noEscape */ __('Using'); ?></span></span>
+                                            <span class="wk_rs_applied_amount">
+                                              <?= $block->escapeHtml(
+                                                  $helper->getformattedPrice($appliedRewards['amount'])
+                                              ); ?>
+                                            </span>
+                                            <span>(</span><span>
+                                              <?= $block->escapeHtml($appliedRewards['used_reward_points']); ?>
+                                            </span><span><span>
+                                              <?= /* @noEscape */ __('Feather Points'); ?>
+                                            </span></span><span>)  <span><?= /* @noEscape */ __('of'); ?></span></span><br />
+                                            <span class="wk_rs_applied_amount" >
+                                              <?= $block->escapeHtml(
+                                                  $helper->getformattedPrice($appliedRewards['avail_amount'])
+                                              ); ?></span>
+                                            <span>(</span><span>
+                                              <?= $block->escapeHtml($appliedRewards['number_of_rewards']); ?>
+                                            </span><span><span> <?= /* @noEscape */ __('Feather Points'); ?> )</span></span>
+                                        </span>
+                                    </span>
+                                    <button class="action action-cancel"
+                                    type="submit" value="<?= /* @noEscape */ __('Cancel'); ?>">
+                                        <span><span><?= /* @noEscape */ __('Cancel'); ?></span></span>
+                                    </button>
+                                </dd>
+                            </dl>
+                        </form>
+                        <p class="feather-text">
+                            <strong>You currently have <?= round($block->escapeHtml($block->getCustomerRewardData()),0); ?> Feather Points in your account. Your Points are worth <?= $block->escapeHtml($block->getCheckoutCurrencySymbol()); ?><?= $block->escapeHtml($block->rewardValue() * $block->getCustomerRewardData()); ?>.</strong>
+                            <span>If you would like to use your points on this order, please enter the number of points you wish to spend in the box on the left and click "Use My Points" to apply the discount to your order.</span>
+                        </p>
+                    </div>
+                </div>
+            <?php } ?>
+        </div>
+    </div>
+    <hr/>
+</div>
+<?php } ?>

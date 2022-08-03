@@ -1,0 +1,395 @@
+<?php if ($block->canShowBlock()): ?>
+  <?php
+      echo $block->getLocatorData('storelocator/general/display_text');
+      endif;
+  ?>
+ <?php
+//$arr= file_get_contents($block->getstaticdata());
+
+//  $arr=$this->getLayout()
+//             ->createBlock('Magento\Cms\Block\Block')
+//             ->setBlockId('store_location_json')
+//             ->toHtml();
+$objectManager =   \Magento\Framework\App\ObjectManager::getInstance();
+    $connection = $objectManager->get('Magento\Framework\App\ResourceConnection')->getConnection('\Magento\Framework\App\ResourceConnection::DEFAULT_CONNECTION');
+    $result1 = $connection->fetchAll("SELECT * FROM locations");
+
+// echo "<pre>";print_r($result1);
+// die;
+
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $model=$objectManager->create('PurpleCommerce\StoreLocator\Model\Welcome');
+    $datacollection=$model->getCollection()->addFieldToFilter('locatorid',1);
+    ///////////////
+   //  $connection = $objectManager->get('Magento\Framework\App\ResourceConnection')->getConnection('\Magento\Framework\App\ResourceConnection::DEFAULT_CONNECTION');
+   // $result1 = $connection->fetchAll("SELECT * FROM loator_pages where ");
+   ////////////////
+    //$_products
+    //echo "gaurav";
+    //print_r($datacollection);
+     // $datacollection->getSelect();
+     // //print_r($datacollection->getData());
+     $arr= json_encode($datacollection->getData());
+     // die;
+?>
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Store Locator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script> -->
+	<!-- <script src="data.js"></script> -->
+    <!-- <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEJUm5oMKlmHTBOhkh7Dv9bjwUgQE8ZFg&callback=initMap&libraries=&v=weekly&map_ids=14b20cad9f22a2"
+      defer
+    ></script> -->
+    <!-- AIzaSyDwwiZMLbWaXvjADRaNLWD52qqfGG5LYHE -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwwiZMLbWaXvjADRaNLWD52qqfGG5LYHE&callback=initMap&libraries=&v=weekly"
+      defer
+    ></script>
+	<script
+  src="https://code.jquery.com/jquery-2.2.4.js"
+  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+  crossorigin="anonymous"></script>
+
+    <script>
+      "use strict";
+	 const myLatlng = {
+          lat: 11.059821,
+          lng: 78.387451
+        };
+		const myLatlng1 = {
+          lat: 50.767921,
+          lng: -1.581389
+        };
+		const myLatlng2 = {
+          lat: 54.622978,
+          lng: -4.21875
+        };
+        var latLng;
+        var map,
+	circle,
+	bounds,
+	mapOrigin,
+	center,
+	jsonData,
+	markers = [],
+	markerData = [],
+	currentMap,
+	infowindow,
+	z=0;
+      function initMap() {
+       	center = myLatlng2;
+         map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 6,
+          center: myLatlng2
+		 //  mapTypeId: google.maps.MapTypeId.ROADMAP,
+			// mapTypeControl: false,
+			// scrollwheel: false
+        });
+        var arr=<?php echo $arr; ?>;
+        //var arr=$(arr1).text();
+        		generateMarkers(arr);
+		// circle = new google.maps.Circle({
+		// 		strokeColor: '#43474b',
+		// 		strokeOpacity: 0.55,
+		// 		strokeWeight: 1.0,
+		// 		fillColor: '#b09eb1',
+		// 		fillOpacity: 0.3,
+		// 		clickable: false,
+		// 		map: map,
+		// 		center: myLatlng1,
+		// 		radius: 16093
+		// 	});
+		// 	bounds = circle.getBounds();
+		// 	map.fitBounds(bounds);
+		// 	map.setCenter(center);
+		setMarkers(center, null);
+		//console.log(markers,markerData);
+		setInfoBoxes();
+
+        //setMarkers(center, null);
+  //       const marker = new google.maps.Marker({
+  //         position: myLatlng,
+  //         map,
+  //         title: "Click to zoom"
+  //       });
+		// const marker1 = new google.maps.Marker({
+  //         position: myLatlng1,
+  //         map,
+  //         title: "Click to zoom"
+  //       });
+		// console.log(arr);
+  //       map.addListener("center_changed", () => {
+  //         // 3 seconds after the center of the map has changed, pan back to the
+  //         // marker.
+  //         window.setTimeout(() => {
+  //           map.panTo(marker.getPosition());
+  //         }, 3000);
+  //       });
+  //       marker.addListener("click", () => {
+  //        map.setZoom(5);
+  //         map.setCenter(marker.getPosition());
+  //       });
+      }
+      function setInfoBoxes() {
+		for (var i = 0; i < markers.length; i++) {
+			//console.log(markers);
+			infoBox(map, markers[i], markerData[i]);
+		}
+	}
+	function infoBox(map, marker, data) {
+
+        google.maps.event.addListener(marker, "click", function(e) {
+        	if(typeof infowindow !='undefined')
+        	{
+        		infowindow.close();
+        	}
+            infowindow = new google.maps.InfoWindow({
+            	content:data.addressLayout
+            });
+            //infoWindow.setContent(data.addressLayout);
+            infowindow.open(map, marker);
+        });
+    }
+      function generateMarkers(json)
+      {
+      	for(var i=0;i<json.length;i++)
+      	{
+      		var data = json[i];
+             //var rre = new google.maps.LatLng(data.lat, data.lng);
+             //console.log(data.lat, data.lng);
+             latLng = new google.maps.LatLng(data.lat, data.lng);
+			 addMarker(latLng, data.locatorid);
+			 var markerLayout = '<span class="title">'+data.storename+'</span><span class="address">';
+				if(data.add1.length > 0) { markerLayout += ''+data.add1+''; }
+				if(data.add2 !='' && data.add2 !=null) { markerLayout += '<br/>'+data.add2+''; }
+				if(data.country.length > 0) { markerLayout += '<br/>'+data.country+''; }
+				if(data.city.length > 0) { markerLayout += '<br/>'+data.city+''; }
+			//	if(data.region.length > 0) {  markerLayout += '<br/>'+data.region+''; }
+				if(data.postcode.length > 0) { markerLayout += '<br/>'+data.postcode+''; }
+			markerLayout += '</span>';
+			if(data.phone != null && data.phone.length > 0) { markerLayout += '<span class="phone">'+data.phone+'</span>'; }
+			if(data.link != null && data.link.length > 0) {
+				var website = data.link;
+				if (website && !website.match(/^http([s]?):\/\/.*/)) {
+					website = 'http://' + website;
+				}
+				markerLayout += '<span class="website"><a href="'+website+'" target="_blank">'+data.link+'</a></span>'; }
+			 var tmpdata = {pointLatLang: latLng,addressLayout: markerLayout, store:data.storename, address:data.add1, address2:data.add2, city:data.city, phone:data.phone, storeid:data.id, state:data.state, suburb:data.country, zipcode:data.postcode};
+			markerData.push(tmpdata);
+      	}
+
+      }
+      function addMarker(location, siteid) {
+      	//var myLatlng = new google.maps.LatLng(location,location1);
+      	// var timeout=z*50;
+      	// window.setTimeout(function(){
+
+       //   var marker = new google.maps.Marker({
+       //        position: location,
+       //        map,
+       //        animation: google.maps.Animation.DROP,
+       //        title: "Click for Details"
+       //      });
+       //    markers.push(marker);
+       //  }, timeout);
+
+       //  z++;
+
+		var marker = new google.maps.Marker({
+			position: location,
+			map,
+			animation: google.maps.Animation.DROP,
+			title: "Click for Details"
+        });
+        markers.push(marker);
+        //marker[i].setMap(map);
+    }
+    // function setMarkers() {
+    // 	 for (var i = 0; i < markers.length; i++) {
+    // 	 	markers[i].setMap(map);
+    // 	 }
+    // }
+
+    function distance(lat1, lon1, lat2, lon2, unit) {
+	var radlat1 = Math.PI * lat1/180
+	var radlat2 = Math.PI * lat2/180
+	var theta = lon1-lon2
+	var radtheta = Math.PI * theta/180
+	var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+	dist = Math.acos(dist)
+	dist = dist * 180/Math.PI
+	dist = dist * 60 * 1.1515
+	if (unit=="K") { dist = dist * 1.609344 }
+	if (unit=="N") { dist = dist * 0.8684 }
+	return dist
+}
+    function setMarkers(center, bounds) {
+		var sortMarkers = [];
+        for (var i = 0; i < markers.length; i++) {
+			markers[i].setMap(null);
+			if(bounds) {
+				if(bounds.contains(markers[i].position)){
+					markers[i].setMap(map);
+					var lat1 = markerData[i].pointLatLang.lat(), lon1 = markerData[i].pointLatLang.lng(), lat2 = center.lat(), lon2 = center.lng();
+					var r = Math.round(distance(lat1, lon1, lat2, lon2));
+					//boxData(i, r);
+					var tmpData = [];
+					tmpData = { "id": i, "distance": r };
+					sortMarkers.push(tmpData);
+				}
+			}else{
+				markers[i].setMap(map);
+			}
+		}
+		var sortedMarkers = Object.keys(sortMarkers).sort( function(keyA, keyB) {
+			return sortMarkers[keyA].distance - sortMarkers[keyB].distance;
+		});
+		sortedMarkers.forEach(function(n){
+			boxData(sortMarkers[n].id, sortMarkers[n].distance);
+		});
+		//console.log();
+    }
+    $(document).ready(function() {
+    $('#lookup').click(function(){
+    	//alert('hlo');
+		$('#searched_data').empty();
+		//$('#storeTitle').show();
+		//$('.infoBox').removeClass("open");
+		var postcode = $('#postcode').val();
+		var distance = parseInt($('input[name=distance]:checked').val(), 10);
+	    searchMap(map, postcode, distance);
+		currentMap = 1;
+	});
+	$('.distance').click(function(){
+		if(currentMap == 1) {
+			$('#searched_data').empty();
+			//$('.infoBox').removeClass("open");
+			var postcode = $('#postcode').val();
+			var distance = parseInt($('input[name=distance]:checked').val(), 10);
+			searchMap(map, postcode, distance);
+		}
+	});
+	$('#reset').click(function(){
+		$('#searched_data').empty();
+		//$('#storeTitle').hide();
+		//$('.infoBox').removeClass("open");
+		resetMap();
+		currentMap = 0;
+	});
+	$('#searched_data').delegate('.infoBox','click',function(){
+		markerBounce($(this).data("id"));
+	});
+
+});
+    function boxData(i, r) {
+		var miles = "Miles";
+		if(r == 1) { miles = "Mile"; }
+		$('#searched_data').append('<div class="col-sm-6 col-md-4 col-xs-12 infoBox" id="box'+i+'" data-id="'+i+'"><div class="innner">'+markerData[i].addressLayout+'<span class="distance">Distance: '+r+' '+miles+'</span></div></div>');
+	}
+
+	function searchMap(map, postcode, distance) {
+		//alert(postcode);
+		if(!distance) { distance = 16093; }
+		var request = $.ajax({
+			'async': true,
+			'global': false,
+			'url': "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyAC0iqjLvqsrBlUN4-G7mcdOpHxfhDpmn4&address="+postcode+" uk",
+			'dataType': "json"
+		});
+		request.done(function(msg) {
+			center = new google.maps.LatLng(msg.results[0].geometry.location.lat,msg.results[0].geometry.location.lng);
+			if(circle) { circle.setMap(null); }
+			circle = new google.maps.Circle({
+				strokeColor: '#43474b',
+				strokeOpacity: 0.55,
+				strokeWeight: 1.0,
+				fillColor: '#b09eb1',
+				fillOpacity: 0.3,
+				clickable: false,
+				map: map,
+				center: center,
+				radius: distance
+			});
+			bounds = circle.getBounds();
+			map.fitBounds(bounds);
+			map.setCenter(center);
+			setMarkers(center, bounds);
+		});
+	}
+	$(window).resize(function() {
+		resizeMap();
+	});
+	function resizeMap() {
+		google.maps.event.trigger(map, 'resize');
+		map.setCenter(center);
+	}
+	function resetMap() {
+		setMarkers(myLatlng2, null);
+		if(circle) { circle.setMap(null); }
+		map.setCenter(myLatlng2);
+		map.setZoom(6);
+	}
+	function markerBounce(id){
+		if (markers[id].getAnimation() != null) {
+			markers[id].setAnimation(null);
+        }else{
+			markers[id].setAnimation(google.maps.Animation.BOUNCE);
+        }
+    }
+
+
+
+    </script>
+  </head>
+  <body>
+
+  	<div class="container">
+  		<h2>Use the map below to find your nearest stockist of Sandpiper Extra Wide Shoes FFF</h2>
+  		<!-- <h5>Use the map below to find a stockitst of our shoes close to you.</h5> -->
+  <div class="row" style="margin-bottom: 10px;">
+  	<div class="lft-field">
+  	<div class="search-title">Enter your postcode</div>
+  	<div id="search_box1" class="search-box" style="background: transparent;">
+			<div class="formWrap">
+				<input id="postcode" type="text">
+			</div>
+        </div>
+  </div>
+  <div class="lft-field">
+
+		<div class="search-title">Choose your distance</div>
+		<div id="search_box1" class="search-box" style="background: transparent;">
+			<div class="formWrap">
+				<label><input class="distance" type="radio" value="16093" name="distance" checked=""><span class="labelText">10 Miles</span></label>
+				<label><input class="distance" type="radio" value="32186" name="distance"><span class="labelText">20 Miles</span></label>
+				<label><input class="distance" type="radio" value="48280" name="distance"><span class="labelText">30 Miles</span></label>
+				<label><input class="distance" type="radio" value="80467" name="distance"><span class="labelText">50 Miles</span></label>
+				<label><input class="distance" type="radio" value="160934" name="distance"><span class="labelText">100 Miles</span></label>
+			</div>
+		</div>
+
+	</div>
+	<div class="lft-field">
+
+		<div class="search-title">Find your Stockist</div>
+		<div id="search_box1" class="search-box" style="background: transparent;">
+			<div class="formWrap">
+				<button id="lookup">Find Stockist</button>
+				<button id="reset">Reset Map</button>
+			</div>
+		</div>
+
+	</div>
+	</div>
+    <div id="map"></div>
+    <div id="searched_data" class="ee"></div>
+
+</div>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+	<group id="cron_for_feed">
+		<job instance="Webkul\GoogleShoppingFeed\Model\Cron\ReExport" method="execute" name="cutomm_reexport_cron">
+			<schedule>* * * * *</schedule>
+		</job>
+	</group>
+</config>

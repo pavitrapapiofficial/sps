@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page layout="1column" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!-- <referenceContainer name="product.info.main">
+            <container name="stockist.info" label="Stockist info container" htmlTag="div" htmlClass="stockist-info" after="product.info.overview">
+                <block class="Magento\Catalog\Block\Product\View" name="product.info.addtocart" as="stockists" template="Magento_Catalog::product/view/stockist.phtml"/>
+            </container>
+        </referenceContainer> -->
+        <referenceBlock name="product.info.details">
+            <!-- MY OWN CUSTOM BLOCK ON THE SECOND POSITION -->
+            <block class="Magento\Catalog\Block\Product\View\Attributes" name="product.features" as="features" template="Magento_Catalog::product/view/delivery.phtml" group="detailed_info">
+                <arguments>
+                    <argument translate="true" name="title" xsi:type="string">Delivery &amp; Returns</argument>
+                    <argument name="sort_order" xsi:type="string">20</argument>
+                </arguments>
+            </block>
+            <!-- MY OWN CUSTOM BLOCK ENDS HERE -->
+        </referenceBlock>
+        <!-- <move name="product.info.description" destination="product.info.main" before="product.ainfo.review"/> -->
+        <!-- <referenceContainer name="product.info.main" remove="true"></referenceContainer> -->
+         <referenceContainer name="product.attributes" remove="true"></referenceContainer> 
+    </body>
+</page>
+

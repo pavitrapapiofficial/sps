@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Webkul Software
+ *
+ * @category    Webkul
+ * @package     Webkul_RewardSystem
+ * @author      Webkul
+ * @copyright   Copyright (c) Webkul Software Private Limited (https://webkul.com)
+ * @license     https://store.webkul.com/license.html
+ */ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+  <default>
+      <rewardsystem>
+          <general_settings>
+              <enable>0</enable>
+              <reward_value>1</reward_value>
+              <allow_registration>0</allow_registration>
+              <allow_review>0</allow_review>
+              <reward_on_birthday>1</reward_on_birthday>
+              <birthday_after_days>1</birthday_after_days>
+              <birthday_reward>10</birthday_reward>
+              <expires_after_days>365</expires_after_days>
+              <send_before_expiring_days>10</send_before_expiring_days>
+          </general_settings>
+          <email_settings>
+              <rewardsystem_transaction>rewardsystem_email_settings_rewardsystem_transaction</rewardsystem_transaction>
+              <rewards_expiry>rewardsystem_email_settings_rewards_expiry</rewards_expiry>
+          </email_settings>
+      </rewardsystem>
+  </default>
+</config>

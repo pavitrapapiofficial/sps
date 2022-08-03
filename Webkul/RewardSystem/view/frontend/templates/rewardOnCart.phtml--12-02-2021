@@ -1,0 +1,38 @@
+<?php
+    $helper = $block->getLayout()->createBlock(\Webkul\RewardSystem\Block\RewardPoints::class)->getHelperClass();
+    $rewardPriorityStatus = $helper->getrewardPriority();
+    $enableRewardSystem = $helper->enableRewardSystem();
+    $cartQty = $helper->getCartData();
+    $cartRewardDetails = $helper->getCartReward();
+    $grandTotal = $block->getQuote()->getGrandTotal();
+    $rewardValue = $helper->getRewardValue();
+    $pointsRequired = $grandTotal/$rewardValue;
+    $cartRewardPoints = isset($cartRewardDetails['reward']) ? $cartRewardDetails['reward'] : 0;
+    $amountFrom = $helper->getformattedPrice($cartRewardDetails['amount_from']);
+    $amountTo = $helper->getformattedPrice($cartRewardDetails['amount_to']);
+    $customerId = $helper->getCustomerId();
+    $url  = $block->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
+    $loginUrl = $block->escapeHtml($block->getUrl('customer/account/login', ['referer' => base64_encode($url)]));
+if ($pointsRequired):?>
+      <span class="wk_reward_required">
+        <?= /* @noEscape */ __('%1 Feather Points are needed to purchase these item(s)', $pointsRequired)?>
+      </span>
+    <?php endif;
+if ($rewardPriorityStatus == 1 && $cartQty && $enableRewardSystem == 1 && $cartRewardPoints) {    ?>
+            <div>
+                <h3 class="wk_rs_product_style wk_rs_advertise_product_style">
+                    <span class="wk_rs_product_greet"></span>
+                    <?= $block->escapeHtml(__('Buy for %1 to %2 and ', $amountFrom, $amountTo))?>
+                    <span class="wk_rs_cart_green">
+                      <?= $block->escapeHtml(__('Earn %1 Feather Points', $cartRewardPoints)); ?>
+                      <?php if (!$customerId) {?>
+                        <a href="<?= $block->escapeUrl($loginUrl); ?>">
+                            <?= $block->escapeHtml(__(" click here")); ?>
+                      </a>
+                        <?= $block->escapeHtml(__(" to login"));} ?>
+                    </span>
+                </h3>
+            </div>
+    <?php
+}
+?>
